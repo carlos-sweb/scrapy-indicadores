@@ -2,6 +2,11 @@ const request = require('request');
 const cheerio = require('cheerio');
 var cron      = require('node-cron');
 
+
+const Database = require('better-sqlite3');
+//const db = new Database('indicadores.sqlite3', { verbose: console.log });
+const db = new Database('indicadores.sqlite3', {});
+
 const url = "https://si3.bcentral.cl/Indicadoressiete/secure/Indicadoresdiarios.aspx";
 
 cron.schedule('* * * * *', () => {
@@ -21,6 +26,14 @@ cron.schedule('* * * * *', () => {
 			 console.log('\x1b[32m%s\x1b\x1b[31m%s','EURO    :','  '+euro);
 			 console.log('\x1b[32m%s\x1b\x1b[31m%s','YEN     :','  '+yen);
 			 console.log('\x1b[33m%s\x1b[0m', "+++++++++++++++++++++++++++++++");
+
+
+				const insert = db.prepare('INSERT INTO indicadores (uf,dolar,euro,yen,date) VALUES (?,?,?,?,?)');
+				insert.run(uf,dolar,euro,yen,'2002-19-02');
+
+
+
+
 
 		};
 	});

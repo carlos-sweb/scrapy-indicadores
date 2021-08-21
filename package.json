@@ -9,6 +9,8 @@
   "author": "carlos illesca",
   "license": "ISC",
   "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.5",
+    "better-sqlite3": "^7.4.3",
     "cheerio": "^1.0.0-rc.3",
     "node-cron": "^3.0.0",
     "request": "^2.88.0"
