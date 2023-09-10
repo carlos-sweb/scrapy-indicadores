@@ -26,3 +26,5 @@ function scrapy( _url ){
 	});
 
 }
+
+scrapy();
