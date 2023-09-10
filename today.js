@@ -27,4 +27,4 @@ function scrapy( _url ){
 
 }
 
-scrapy();
+scrapy(url);
