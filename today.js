@@ -16,12 +16,17 @@ function scrapy( _url ){
 		
 		log( chalk.green("Bienvenido - indicadores económicos") );
 		log( chalk.blue(date) )
-		log("");
-		log( "- UF    : "+chalk.yellow(uf) )
-		log( "- DOLAR : "+chalk.yellow(dolar) )
-		log( "- EURO  : "+chalk.yellow(euro) )
-		log( "- YEN   : "+chalk.yellow(yen) )
-		log( "- TIB   : "+chalk.yellow(tib) )
+		log("+"+String("-").repeat(30));
+		log( "|  UF    : "+chalk.yellow(uf) )
+		log("|"+String("-").repeat(30));
+		log( "|  DOLAR : "+chalk.yellow(dolar) )
+		log("|"+String("-").repeat(30));
+		log( "|  EURO  : "+chalk.yellow(euro) )
+		log("|"+String("-").repeat(30));
+		log( "|  YEN   : "+chalk.yellow(yen) )
+		log("|"+String("-").repeat(30));
+		log( "|  TIB   : "+chalk.yellow(tib) )
+		log("+"+String("-").repeat(30));
 		log("");
 	});
 
