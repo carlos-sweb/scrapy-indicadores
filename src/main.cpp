@@ -5,11 +5,12 @@ using namespace std;
 #include <cpr/cpr.h>
 #include <argh.h>
 #include <ada.h>
+/*
 #include <termcolor/termcolor.hpp>
+*/
 #include <lexbor/html/html.h>
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
-
 
 std::string getText(lxb_dom_element_t *element){
     std::string text_full = "";
@@ -25,6 +26,8 @@ std::string getText(lxb_dom_element_t *element){
     }
     return text_full;
 }
+
+
 
 string loadContentBCentral(){
 	string html="";
