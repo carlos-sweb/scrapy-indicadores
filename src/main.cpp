@@ -103,6 +103,9 @@ int main(int argc, char * argv[]){
 		"lblValor1_10",
 		document,
 		body);
+	if(document != NULL){
+		lxb_html_document_destroy( document );
+	}        
 
 
 	cout << " UF    => " << valueUF << "\n";
@@ -113,10 +116,7 @@ int main(int argc, char * argv[]){
 	// buscando UF
 
 
-	if(document != NULL){
-		lxb_html_document_destroy( document );
-	}        
-//LEXBOR PARSER
-    
+	
+//LEXBOR PARSER    
     return 0;
 }
