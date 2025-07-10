@@ -36,8 +36,7 @@ endif()
 
 add_executable(
     indicadores
-    src/main.cpp 
-    src/ada.cpp
+    src/main.cpp
 )
 
 target_link_libraries(indicadores PRIVATE 

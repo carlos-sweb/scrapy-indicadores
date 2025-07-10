@@ -4,7 +4,6 @@
 using namespace std;
 #include <cpr/cpr.h>
 #include <argh.h>
-#include <ada.h>
 
 #include <termcolor.hpp>
 
@@ -31,16 +30,13 @@ std::string getText(lxb_dom_element_t *element){
 
 string loadContentBCentral(){
 	string html="";
-	auto url = ada::parse("https://si3.bcentral.cl/");
-    url->set_protocol("https");
-    url->set_pathname("/Indicadoressiete/secure/Indicadoresdiarios.aspx");
-    if(url){    	
-        auto url_bcentral = cpr::Url{ url->get_href() };
-        auto response = cpr::Get( url_bcentral );
-        if(response.status_code == 200){
-        	html += response.text;
-        }
+	
+    auto url_bcentral = cpr::Url{ "https://si3.bcentral.cl//Indicadoressiete/secure/Indicadoresdiarios.aspx" };
+    auto response = cpr::Get( url_bcentral );
+    if(response.status_code == 200){
+    	html += response.text;
     }
+    
     return html;
 }
 
