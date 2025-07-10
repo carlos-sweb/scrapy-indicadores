@@ -18,9 +18,6 @@ set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenSSL REQUIRED )
-find_package(cpr REQUIRED)
-
-find_library(LEXBOR_STATIC liblexbor_static.a PATHS /usr/local/lib64 REQUIRED)
 
 # 2. Configurar rutas dinámicas para CPR
 if(IS_TERMUX)
@@ -34,8 +31,6 @@ else()
     set(CPR_LIBRARY "/usr/local/lib64/libcpr.a")
     set(LEXBOR_STATIC "/usr/local/lib64/liblexbor_static.a")
 endif()
-
-#find_library(CPR_STATIC libcpr.a PATHS /usr/local/lib64 REQUIRED)
 
 add_executable(
     indicadores
