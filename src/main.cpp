@@ -5,9 +5,9 @@ using namespace std;
 #include <cpr/cpr.h>
 #include <argh.h>
 #include <ada.h>
-/*
-#include <termcolor/termcolor.hpp>
-*/
+
+#include <termcolor.hpp>
+
 #include <lexbor/html/html.h>
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
@@ -107,11 +107,12 @@ int main(int argc, char * argv[]){
 		lxb_html_document_destroy( document );
 	}        
 
-
-	cout << " UF    => " << valueUF << "\n";
-	cout << " Dolar => " << valueDolar << "\n";
-	cout << " Euro  => " << valueEuro << "\n";
-	cout << " Yen   => " << valueYen << "\n";
+	cout << "----------------------\n";
+	cout << "| "<<termcolor::green<<"UF"<<termcolor::reset<<"    |  " << termcolor::yellow << valueUF << termcolor::reset << " |\n";
+	cout << "| "<<termcolor::green<<"Dolar"<<termcolor::reset<<" |     " << termcolor::yellow << valueDolar << termcolor::reset <<" |\n";
+	cout << "| "<<termcolor::green<<"Euro"<<termcolor::reset<<"  |   " << termcolor::yellow << valueEuro << termcolor::reset <<" |\n";
+	cout << "| "<<termcolor::green<<"Yen"<<termcolor::reset<<"   |   " << termcolor::yellow <<valueYen << termcolor::reset <<" |\n";
+	cout << "----------------------\n";
 	
 	// buscando UF
 
