@@ -14,7 +14,7 @@ endif()
 
 #set(BUILD_SHARED_LIBS OFF)
 #set(CMAKE_EXE_LINKER_FLAGS "-static")
-set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenSSL REQUIRED )
@@ -25,11 +25,13 @@ if(IS_TERMUX)
     set(CPR_INCLUDE_DIR "$ENV{HOME}/cpr/include")
     set(CPR_LIBRARY "$ENV{HOME}/cpr/build/lib/libcpr.a")
     set(LEXBOR_STATIC "$ENV{HOME}/lexbor/build/liblexbor_static.a")
+    set(LEXBOR_INCLUDE_DIR "$ENV{HOME}/lexbor/source")
 else()
     # Rutas para Linux estándar
     set(CPR_INCLUDE_DIR "/usr/local/include/cpr")
     set(CPR_LIBRARY "/usr/local/lib64/libcpr.a")
     set(LEXBOR_STATIC "/usr/local/lib64/liblexbor_static.a")
+    set(LEXBOR_INCLUDE_DIR "/usr/local/include")
 endif()
 
 add_executable(
@@ -51,7 +53,7 @@ set_target_properties(indicadores PROPERTIES
     INSTALL_RPATH "/usr/local/lib64"
     BUILD_WITH_INSTALL_RPATH TRUE
 )
-include_directories(includes ${CPR_INCLUDE_DIR})
+include_directories(includes ${CPR_INCLUDE_DIR} ${LEXBOR_INCLUDE_DIR})
 include(GNUInstallDirs)
 install(TARGETS indicadores
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
