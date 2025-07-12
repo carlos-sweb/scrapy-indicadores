@@ -166,18 +166,18 @@ int main(int argc, char * argv[]){
 	const int row_yellow = 12;
 	// row_green+row_yellow+5;	
 	if( f_uf_exists ){
-		cout << "--------------------------\n";	
-		cout << blockLeftGreen(string("UF(").append(s_uf+")"), row_green) ;
+		cout << " --------------------------\n";	
+		cout <<" "<< blockLeftGreen(string("UF(").append(s_uf+")"), row_green) ;
 		int cal_uf = f_uf*39280.45;
-		cout << blockLeftYellow(int_CLP(cal_uf), row_yellow) ;
+		cout << blockLeftYellow(int_CLP(cal_uf), row_yellow);
 		cout << "|\n";		
 	}
-	cout << "--------------------------\n";	
-	cout << blockLeftGreen("UF", row_green) << blockLeftYellow(valueUF,row_yellow)  << "|\n";
-	cout << blockLeftGreen("Dolar", row_green) << blockLeftYellow(valueDolar,row_yellow) <<"|\n";
-	cout << blockLeftGreen("Euro", row_green) << blockLeftYellow(valueEuro,row_yellow) <<"|\n";
-	cout << blockLeftGreen("Yen", row_green) << blockLeftYellow(valueYen,row_yellow) <<"|\n";
-	cout << "--------------------------\n\n";	
+	cout << " --------------------------\n";	
+	cout << " " <<blockLeftGreen("UF", row_green) << blockLeftYellow(valueUF,row_yellow)  << "|\n";
+	cout << " "<<blockLeftGreen("Dolar", row_green) << blockLeftYellow(valueDolar,row_yellow) <<"|\n";
+	cout << " "<<blockLeftGreen("Euro", row_green) << blockLeftYellow(valueEuro,row_yellow) <<"|\n";
+	cout << " "<<blockLeftGreen("Yen", row_green) << blockLeftYellow(valueYen,row_yellow) <<"|\n";
+	cout << " --------------------------\n\n";	
 //LEXBOR PARSER    
     return 0;
 }
