@@ -24,6 +24,23 @@ namespace fs = std::filesystem;
 #define URl_BCENTRAL "https://si3.bcentral.cl//Indicadoressiete/secure/Indicadoresdiarios.aspx"
 
 
+
+
+string cleanValue(string valueUF){
+	string output="";	
+	for(int i = (valueUF.length()-1);i >= 0;i--){
+		string val = string(1,valueUF.at(i));
+		if( val != "."){
+			if(val == ","){
+				output.insert(0,".");	
+			}else{
+				output.insert(0,val);	
+			}			
+		}
+	}	
+	return output;
+}
+
 string int_CLP(int cal){
 	string output="";
 	string body = to_string(cal);
@@ -120,14 +137,34 @@ string ById(string value, lxb_html_document_t * document , lxb_dom_element_t * b
 int main(int argc, char * argv[]){
 
 	auto cmdl = argh::parser(argc, argv);
+
 	float f_uf;
 	string s_uf;
 	bool f_uf_exists = false;
 
-	if( cmdl({"--uf" }) ){		
+	float f_dolar;
+	string s_dolar;
+	bool f_dolar_exists = false;
+
+	float f_euro;
+	string s_euro;
+	bool f_euro_exists = false;
+
+	if( cmdl({"--uf" }) ){
 		s_uf = cmdl({"--uf" }).str();
 		cmdl("uf",1.0f) >> f_uf;
 		f_uf_exists = true;		
+	}
+
+	if( cmdl({"--dolar" }) ){		
+		s_dolar = cmdl({"--dolar" }).str();
+		cmdl("dolar",1.0f) >> f_dolar;
+		f_dolar_exists = true;		
+	}
+	if( cmdl({"--euro" }) ){		
+		s_euro = cmdl({"--euro" }).str();
+		cmdl("euro",1.0f) >> f_euro;
+		f_euro_exists = true;		
 	}
 	
 	string html = loadContentBCentral();
@@ -154,22 +191,36 @@ int main(int argc, char * argv[]){
     cout << "\n";
     cout << " " <<termcolor::green << now->tm_mday << " de ";
     const char* meses[] = {
-    	"enero","febrero","marzo", 
-    	"abril", "mayo", "junio",
-		"julio","agosto","septiembre",
-		"octubre","noviembre","diciembre"
+    	"Enero","Febrero","Marzo", 
+    	"Abril", "Mayo", "Junio",
+		"Julio","Agosto","Septiembre",
+		"Octubre","Noviembre","Diciembre"
 	};
     cout << meses[now->tm_mon] << " " << (now->tm_year + 1900) << termcolor::reset << std::endl;
     
 	
-	const int row_green = 9;
+	const int row_green = 12;
 	const int row_yellow = 12;
 	// row_green+row_yellow+5;	
 	if( f_uf_exists ){
 		cout << " --------------------------\n";	
 		cout <<" "<< blockLeftGreen(string("UF(").append(s_uf+")"), row_green) ;
-		int cal_uf = f_uf*39280.45;
+		int cal_uf = f_uf*std::stof(cleanValue(valueUF));
 		cout << blockLeftYellow(int_CLP(cal_uf), row_yellow);
+		cout << "|\n";		
+	}
+	if( f_dolar_exists ){
+		cout << " --------------------------\n";	
+		cout <<" "<< blockLeftGreen(string("Dolar(").append(s_dolar+")"), row_green) ;
+		int cal_dolar = f_dolar*std::stof(cleanValue(valueDolar));
+		cout << blockLeftYellow(int_CLP(cal_dolar), row_yellow);
+		cout << "|\n";		
+	}
+	if( f_euro_exists ){
+		cout << " --------------------------\n";	
+		cout <<" "<< blockLeftGreen(string("Euro(").append(s_euro+")"), row_green) ;
+		int cal_euro = f_euro*std::stof(cleanValue(valueEuro));
+		cout << blockLeftYellow(int_CLP(cal_euro), row_yellow);
 		cout << "|\n";		
 	}
 	cout << " --------------------------\n";	
