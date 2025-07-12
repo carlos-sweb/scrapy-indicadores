@@ -11,8 +11,6 @@ using namespace std;
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
 
-
-
 #include <ctime>
 #include <iomanip>
 
@@ -23,27 +21,23 @@ namespace fs = std::filesystem;
 
 #define URl_BCENTRAL "https://si3.bcentral.cl//Indicadoressiete/secure/Indicadoresdiarios.aspx"
 
-
-
-
 string cleanValue(string valueUF){
-	string output="";	
-	for(int i = (valueUF.length()-1);i >= 0;i--){
-		string val = string(1,valueUF.at(i));
-		if( val != "."){
-			if(val == ","){
-				output.insert(0,".");	
-			}else{
-				output.insert(0,val);	
-			}			
-		}
-	}
-	if(output == "ND"){
+	if( valueUF == "ND"){
 		return "0.0";
 	}else{
-		return output;	
-	}
-	
+		string output="";	
+		for(int i = (valueUF.length()-1);i >= 0;i--){
+			string val = string(1,valueUF.at(i));
+			if( val != "."){
+				if(val == ","){
+					output.insert(0,".");	
+				}else{
+					output.insert(0,val);	
+				}			
+			}
+		}
+		return output;
+	}		
 }
 
 string int_CLP(int cal){
