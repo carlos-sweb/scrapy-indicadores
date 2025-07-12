@@ -166,6 +166,7 @@ int main(int argc, char * argv[]){
 		cmdl("dolar",1.0f) >> f_dolar;
 		f_dolar_exists = true;		
 	}
+
 	if( cmdl({"--euro" }) ){		
 		s_euro = cmdl({"--euro" }).str();
 		cmdl("euro",1.0f) >> f_euro;
@@ -173,6 +174,7 @@ int main(int argc, char * argv[]){
 	}
 	
 	string html = loadContentBCentral();
+
 	//LEXBOR PARSER
 	size_t size;
 	lxb_status_t status;        	 
@@ -228,12 +230,14 @@ int main(int argc, char * argv[]){
 		cout << blockLeftYellow(int_CLP(cal_euro), row_yellow);
 		cout << "|\n";		
 	}
-	cout << s_separate;	
+	cout << s_separate;
+
 	cout << " " <<blockLeftGreen("UF", row_green) << blockLeftYellow(valueUF,row_yellow)  << "|\n";
 	cout << " "<<blockLeftGreen("Dolar", row_green) << blockLeftYellow(valueDolar,row_yellow) <<"|\n";
 	cout << " "<<blockLeftGreen("Euro", row_green) << blockLeftYellow(valueEuro,row_yellow) <<"|\n";
 	cout << " "<<blockLeftGreen("Yen", row_green) << blockLeftYellow(valueYen,row_yellow) <<"|\n";
 	cout << s_separate << "\n";	
+
 //LEXBOR PARSER    
     return 0;
 }
