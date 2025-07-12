@@ -37,8 +37,13 @@ string cleanValue(string valueUF){
 				output.insert(0,val);	
 			}			
 		}
-	}	
-	return output;
+	}
+	if(output == "ND"){
+		return "0.0";
+	}else{
+		return output;	
+	}
+	
 }
 
 string int_CLP(int cal){
@@ -198,37 +203,37 @@ int main(int argc, char * argv[]){
 	};
     cout << meses[now->tm_mon] << " " << (now->tm_year + 1900) << termcolor::reset << std::endl;
     
-	
+	const string s_separate = 	" -----------------------------\n";
 	const int row_green = 12;
 	const int row_yellow = 12;
 	// row_green+row_yellow+5;	
 	if( f_uf_exists ){
-		cout << " --------------------------\n";	
+		cout << s_separate;	
 		cout <<" "<< blockLeftGreen(string("UF(").append(s_uf+")"), row_green) ;
 		int cal_uf = f_uf*std::stof(cleanValue(valueUF));
 		cout << blockLeftYellow(int_CLP(cal_uf), row_yellow);
 		cout << "|\n";		
 	}
 	if( f_dolar_exists ){
-		cout << " --------------------------\n";	
+		cout << s_separate;	
 		cout <<" "<< blockLeftGreen(string("Dolar(").append(s_dolar+")"), row_green) ;
 		int cal_dolar = f_dolar*std::stof(cleanValue(valueDolar));
 		cout << blockLeftYellow(int_CLP(cal_dolar), row_yellow);
 		cout << "|\n";		
 	}
 	if( f_euro_exists ){
-		cout << " --------------------------\n";	
-		cout <<" "<< blockLeftGreen(string("Euro(").append(s_euro+")"), row_green) ;
+		cout << s_separate;	
+		cout <<" "<< blockLeftGreen(string("Euro(").append(s_euro+")"), row_green) ;		
 		int cal_euro = f_euro*std::stof(cleanValue(valueEuro));
 		cout << blockLeftYellow(int_CLP(cal_euro), row_yellow);
 		cout << "|\n";		
 	}
-	cout << " --------------------------\n";	
+	cout << s_separate;	
 	cout << " " <<blockLeftGreen("UF", row_green) << blockLeftYellow(valueUF,row_yellow)  << "|\n";
 	cout << " "<<blockLeftGreen("Dolar", row_green) << blockLeftYellow(valueDolar,row_yellow) <<"|\n";
 	cout << " "<<blockLeftGreen("Euro", row_green) << blockLeftYellow(valueEuro,row_yellow) <<"|\n";
 	cout << " "<<blockLeftGreen("Yen", row_green) << blockLeftYellow(valueYen,row_yellow) <<"|\n";
-	cout << " --------------------------\n\n";	
+	cout << s_separate << "\n";	
 //LEXBOR PARSER    
     return 0;
 }
