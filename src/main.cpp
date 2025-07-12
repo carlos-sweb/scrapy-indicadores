@@ -11,6 +11,11 @@ using namespace std;
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
 
+
+
+#include <ctime>
+#include <iomanip>
+
 std::string getText(lxb_dom_element_t *element){
     std::string text_full = "";
     lxb_dom_node_t * node = (lxb_dom_node_t * ) element;
@@ -101,7 +106,32 @@ int main(int argc, char * argv[]){
 		body);
 	if(document != NULL){
 		lxb_html_document_destroy( document );
-	}        
+	}  
+
+
+    std::time_t t = std::time(nullptr);
+    std::tm* now = std::localtime(&t);
+
+    cout << "\n";
+    cout << " " <<termcolor::green << now->tm_mday << " de ";
+    const char* meses[] = {
+    	"enero",
+    	"febrero",
+    	"marzo", 
+    	"abril", 
+    	"mayo", 
+    	"junio",
+		"julio",
+		"agosto",
+		"septiembre",
+		"octubre",
+		"noviembre",
+		"diciembre"
+	};
+
+    cout << meses[now->tm_mon] << " " << (now->tm_year + 1900) << termcolor::reset << std::endl;
+
+          
 
 	cout << "----------------------\n";
 	cout << "| "<<termcolor::green<<"UF"<<termcolor::reset<<"    |  " << termcolor::yellow << valueUF << termcolor::reset << " |\n";
