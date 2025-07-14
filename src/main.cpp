@@ -133,7 +133,7 @@ string ById(string value, lxb_html_document_t * document , lxb_dom_element_t * b
 typedef struct{
 	float f_vl;
 	string s_vl;
-	bool exists = false;
+	bool exists;
 } vlBcentral;
 
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
@@ -141,7 +141,7 @@ int main(int argc, char * argv[]){
 	std::time_t t = std::time(nullptr);
     std::tm* now = std::localtime(&t);
 	argh::parser cmdl(argc, argv);
-	vlBcentral v_uf,v_dolar,v_euro;
+	vlBcentral v_uf{.exists=false},v_dolar{.exists=false},v_euro{.exists=false};
 
 	const string string_today_date = to_string(now->tm_mday) + "-" +to_string(now->tm_mon+1) + "-" + to_string((now->tm_year+1900));	
 
