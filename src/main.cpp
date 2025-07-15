@@ -17,17 +17,16 @@ using namespace std;
 #include "helper.hpp"
 namespace fs = std::filesystem;
 #include <fmt/base.h>
+#include <fmt/chrono.h>
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int argc, char * argv[]){
-	
-	fmt::print("Hello, world!\n");
-
+	const string s_separate = " -----------------------------\n";
 	std::time_t t = std::time(nullptr);
     std::tm* now = std::localtime(&t);
 	argh::parser cmdl(argc, argv);
 	vlBcentral v_uf{.exists=false},v_dolar{.exists=false},v_euro{.exists=false};
 
-	const string string_today_date = to_string(now->tm_mday) + "-" +to_string(now->tm_mon+1) + "-" + to_string((now->tm_year+1900));	
+	const string string_today_date = to_string(now->tm_mday) + "-" +to_string(now->tm_mon+1) + "-" + to_string((now->tm_year+1900));
 
 	/*
 	map<string,vlBcentral> bcentral_values;	
@@ -92,51 +91,70 @@ int main(int argc, char * argv[]){
 	if(status!=LXB_STATUS_OK){exit(EXIT_FAILURE);}
 	body = lxb_dom_interface_element(document->body);
 	// search value from ID
-	const string valueUF=ById("lblValor1_1",document,body);
-	const string valueDolar=ById("lblValor1_3",document,body);
-	const string valueEuro=ById("lblValor1_5",document,body);
-	const string valueYen=ById("lblValor1_10",document,body);
+	const string valueUF=ById("lblValor1_1",document,body),
+	valueDolar=ById("lblValor1_3",document,body),
+	valueEuro=ById("lblValor1_5",document,body),
+	valueYen=ById("lblValor1_10",document,body);
 	// free document
 	if(document != NULL){lxb_html_document_destroy(document);}
-    cout << "\n";
+
+	// Solo puedo obtener el mes en forma de numero
+	//fmt::print(" {:%d de %m %Y}", fmt::localtime(t));
+    fmt::print("\n");
     cout << " " <<termcolor::green << now->tm_mday << " de ";    
-    cout << meses[now->tm_mon] << " " << (now->tm_year + 1900) << termcolor::reset << endl;
-	const string s_separate = 	" -----------------------------\n";
-	const int row_green = 12;
-	const int row_yellow = 12;
+    cout << meses[now->tm_mon] << " " << (now->tm_year + 1900) << termcolor::reset << endl;	
+	const int row_green = 12,row_yellow = 12;
+
 	// row_green+row_yellow+5;	
 	if( v_uf.exists){
 		if(valueUF != "ND" ){
-			cout << s_separate;	
-			cout <<" "<< blockLeftGreen(string("UF(").append(v_uf.s_vl+")"), row_green) ;
 			int cal_uf = v_uf.f_vl*std::stof(cleanValue(valueUF));
-			cout << blockLeftYellow(int_CLP(cal_uf), row_yellow);
-			cout << "|\n";		
+			fmt::print("{} {}{}|\n",
+				s_separate,
+				blockLeftGreen(fmt::format("UF({})",v_uf.s_vl), row_green),
+				blockLeftYellow(fmt::format("{:>11}",int_CLP(cal_uf)), row_yellow)
+			);
 		}		
 	}
 	if( v_dolar.exists){
 		// se podria agregar un mensaje 
 		// cunado el valor es ND para sabados y domingos
-		if(valueDolar != "ND"){
-			cout << s_separate;	
-			cout <<" "<< blockLeftGreen(string("Dolar(").append(v_dolar.s_vl+")"), row_green) ;
+		if(valueDolar != "ND"){			
 			int cal_dolar = v_dolar.f_vl*std::stof(cleanValue(valueDolar));
-			cout << blockLeftYellow(int_CLP(cal_dolar), row_yellow);
-			cout << "|\n";		
+			fmt::print("{} {}{}|\n",
+				s_separate,
+				blockLeftGreen(fmt::format("Dolar({})",v_dolar.s_vl), row_green),
+				blockLeftYellow(fmt::format("{:>11}",int_CLP(cal_dolar)), row_yellow)
+			);
 		}
 	}
-	if( v_euro.exists && valueEuro != "ND" ){
-		cout << s_separate;	
-		cout <<" "<< blockLeftGreen(string("Euro(").append(v_euro.s_vl+")"), row_green) ;		
-		int cal_euro = v_euro.f_vl*std::stof(cleanValue(valueEuro));
-		cout << blockLeftYellow(int_CLP(cal_euro), row_yellow);
-		cout << "|\n";		
+	if( v_euro.exists){
+		if(valueEuro != "ND"){
+			int cal_euro = v_euro.f_vl*std::stof(cleanValue(valueEuro));
+			fmt::print("{} {}{}|\n",
+				s_separate,
+				blockLeftGreen(string("Euro(").append(v_euro.s_vl+")"), row_green),
+				blockLeftYellow(fmt::format("{:>11}",int_CLP(cal_euro)), row_yellow)
+			);
+		}		
 	}
-	cout << s_separate;
-	cout << " "<<blockLeftGreen("UF", row_green)<<blockLeftYellow(valueUF,row_yellow)<<"|\n";
-	cout << " "<<blockLeftGreen("Dolar", row_green)<<blockLeftYellow(valueDolar,row_yellow)<<"|\n";
-	cout << " "<<blockLeftGreen("Euro", row_green)<<blockLeftYellow(valueEuro,row_yellow)<<"|\n";
-	cout << " "<<blockLeftGreen("Yen", row_green)<<blockLeftYellow(valueYen,row_yellow)<<"|\n";
-	cout << s_separate << "\n";	
+	fmt::print("{}",s_separate);
+	fmt::print(" {}{}|\n",
+		blockLeftGreen("UF",row_green),
+		blockLeftYellow( fmt::format("{:>11}",valueUF)  ,row_yellow)
+	);
+	fmt::print(" {}{}|\n",
+		blockLeftGreen("Dolar", row_green),
+		blockLeftYellow(fmt::format("{:>11}",valueDolar),row_yellow)
+	);
+	fmt::print(" {}{}|\n",
+		blockLeftGreen("Euro", row_green),
+		blockLeftYellow(fmt::format("{:>11}",valueEuro),row_yellow)
+	);
+	fmt::print(" {}{}|\n",
+		blockLeftGreen("Yen", row_green),
+		blockLeftYellow(fmt::format("{:>11}",valueYen),row_yellow)
+	);	
+	fmt::print("{}",s_separate);
     return 0;
 }
