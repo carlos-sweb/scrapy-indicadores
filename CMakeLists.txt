@@ -26,12 +26,14 @@ if(IS_TERMUX)
     set(CPR_LIBRARY "$ENV{HOME}/cpr/build/lib/libcpr.a")
     set(LEXBOR_STATIC "$ENV{HOME}/lexbor/build/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "$ENV{HOME}/lexbor/source")
+    set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")
 else()
     # Rutas para Linux estándar
     set(CPR_INCLUDE_DIR "/usr/local/include/cpr")
     set(CPR_LIBRARY "/usr/local/lib64/libcpr.a")
     set(LEXBOR_STATIC "/usr/local/lib64/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "/usr/local/include")
+    set(FMT_STATIC "/usr/local/lib64/libfmt.a")
 endif()
 
 add_executable(
@@ -44,6 +46,7 @@ target_link_libraries(indicadores PRIVATE
     ssl 
     crypto 
     z 
+    ${FMT_STATIC}
     ${LEXBOR_STATIC} 
     ${CPR_LIBRARY}
 )

@@ -5,9 +5,7 @@
 using namespace std;
 #include <cpr/cpr.h>
 #include <argh.h>
-
 #include <termcolor.hpp>
-
 #include <lexbor/html/html.h>
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
@@ -16,16 +14,14 @@ using namespace std;
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-
 #include "helper.hpp"
-
 namespace fs = std::filesystem;
-
-
-
-
+#include <fmt/base.h>
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int argc, char * argv[]){
+	
+	fmt::print("Hello, world!\n");
+
 	std::time_t t = std::time(nullptr);
     std::tm* now = std::localtime(&t);
 	argh::parser cmdl(argc, argv);
@@ -46,21 +42,21 @@ int main(int argc, char * argv[]){
 	}
 	*/
 
-	if(cmdl({"--uf"})){
-		v_uf.s_vl = cmdl({"--uf" }).str();
-		if(cmdl("--uf",1.0f) >> v_uf.f_vl){
+	if(cmdl({"uf"})){
+		v_uf.s_vl = cmdl({"uf" }).str();
+		if(cmdl("uf",1.0f) >> v_uf.f_vl){
 			v_uf.exists = true;
 		}	
 	}		
-	if(cmdl({"--dolar"})){
-		v_dolar.s_vl=cmdl({"--uf" }).str();
-		if(cmdl("uf",1.0f)>>v_dolar.f_vl){
+	if(cmdl({"dolar"})){
+		v_dolar.s_vl=cmdl({"dolar" }).str();
+		if(cmdl("dolar",1.0f)>>v_dolar.f_vl){
 			v_dolar.exists=true;
 		}
 	}
-	if(cmdl({"--euro" })){
-		v_euro.s_vl = cmdl({"--uf" }).str();
-		if(cmdl("uf",1.0f) >> v_euro.f_vl){
+	if(cmdl({"euro" })){
+		v_euro.s_vl = cmdl({"euro" }).str();
+		if(cmdl("euro",1.0f) >> v_euro.f_vl){
 			v_euro.exists = true;
 		}
 	}
