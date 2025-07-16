@@ -18,50 +18,35 @@ using namespace std;
 namespace fs = std::filesystem;
 #include <fmt/base.h>
 #include <fmt/chrono.h>
-
-
-void printIndicador(
-	const string valueString,
-	const string name ,
-	const int row_green ,
-	const int row_yellow
-){
-	
-	fmt::print(" {}{}|\n",
-		blockLeftGreen(name, row_green),
-		blockLeftYellow(fmt::format("{:>11}",valueString),row_yellow)
-	);	
-
-}
-
-
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
-int main(int argc, char * argv[]){
-	argh::parser cmdl(argc, argv);
 
-
-
-	const int row_green = 14,
-	row_yellow = 12;
+OPOPOPOPint main(int argc, char * argv[]){
+	const string s_separate = " -----------------------------\n";
 	std::time_t t = std::time(nullptr);
-    std::tm* now = std::localtime(&t);	
-	vlBcentral 
-		v_uf{.exists=false},
-		v_dolar{.exists=false},
-		v_euro{.exists=false};
-	const string s_separate = " -------------------------------\n",
-	string_today_date = fmt::format(
-		"\033[32m{} de {} {}\033[00m",
-		now->tm_mday,
-		meses[now->tm_mon],
-		(now->tm_year+1900)
-	);
+    std::tm* now = std::localtime(&t);
+	argh::parser cmdl(argc, argv);
+	vlBcentral v_uf{.exists=false},v_dolar{.exists=false},v_euro{.exists=false};
+
+	const string string_today_date = to_string(now->tm_mday) + "-" +to_string(now->tm_mon+1) + "-" + to_string((now->tm_year+1900));
+
+	/*
+	map<string,vlBcentral> bcentral_values;	
+	vector<string> values = {"uf","dolar","euro"};
+	for(auto s_vl:values){
+		if(cmdl({s_vl})){
+			bcentral_values[s_vl] = vlBcentral{.s_vl=s_vl,};
+			if(cmdl(s_vl,1.0f) >> bcentral_values[s_vl].f_vl){
+				bcentral_values[s_vl].exists=true;
+			}
+		}
+	}
+	*/
 
 	if(cmdl({"uf"})){
 		v_uf.s_vl = cmdl({"uf" }).str();
 		if(cmdl("uf",1.0f) >> v_uf.f_vl){
 			v_uf.exists = true;
-		}
+		}	
 	}		
 	if(cmdl({"dolar"})){
 		v_dolar.s_vl=cmdl({"dolar" }).str();
@@ -75,6 +60,7 @@ int main(int argc, char * argv[]){
 			v_euro.exists = true;
 		}
 	}
+
 
 	const string html = loadContentBCentral();
 
@@ -109,19 +95,16 @@ int main(int argc, char * argv[]){
 	const string valueUF=ById("lblValor1_1",document,body),
 	valueDolar=ById("lblValor1_3",document,body),
 	valueEuro=ById("lblValor1_5",document,body),
-	valueYen=ById("lblValor1_10",document,body),
-	valueGold=ById("lblValor2_3",document,body),
-	valueSilver=ById("lblValor2_4",document,body),
-	valueCopper=ById("lblValor2_5",document,body);
+	valueYen=ById("lblValor1_10",document,body);
 	// free document
 	if(document != NULL){lxb_html_document_destroy(document);}
 
 	// Solo puedo obtener el mes en forma de numero
 	//fmt::print(" {:%d de %m %Y}", fmt::localtime(t));
     fmt::print("\n");
-    fmt::print(" {}\n",string_today_date);
-
-	
+    cout << " " <<termcolor::green << now->tm_mday << " de ";    
+    cout << meses[now->tm_mon] << " " << (now->tm_year + 1900) << termcolor::reset << endl;	
+	const int row_green = 12,row_yellow = 12;
 
 	// row_green+row_yellow+5;	
 	if( v_uf.exists){
@@ -156,17 +139,23 @@ int main(int argc, char * argv[]){
 			);
 		}		
 	}
-
 	fmt::print("{}",s_separate);
-	printIndicador(valueUF,"UF",row_green,row_yellow);
-	printIndicador(valueDolar,"Dolar",row_green,row_yellow);
-	printIndicador(valueEuro,"Euro",row_green,row_yellow);
-	printIndicador(valueYen,"Yen",row_green,row_yellow);
+	fmt::print(" {}{}|\n",
+		blockLeftGreen("UF",row_green),
+		blockLeftYellow( fmt::format("{:>11}",valueUF)  ,row_yellow)
+	);
+	fmt::print(" {}{}|\n",
+		blockLeftGreen("Dolar", row_green),
+		blockLeftYellow(fmt::format("{:>11}",valueDolar),row_yellow)
+	);
+	fmt::print(" {}{}|\n",
+		blockLeftGreen("Euro", row_green),
+		blockLeftYellow(fmt::format("{:>11}",valueEuro),row_yellow)
+	);
+	fmt::print(" {}{}|\n",
+		blockLeftGreen("Yen", row_green),
+		blockLeftYellow(fmt::format("{:>11}",valueYen),row_yellow)
+	);	
 	fmt::print("{}",s_separate);
-	printIndicador(valueGold,"Oro(onza)",row_green,row_yellow);
-	printIndicador(valueSilver,"Plata(onza)",row_green,row_yellow);
-	printIndicador(valueCopper,"Cobre(Libra)",row_green,row_yellow);
-	fmt::print("{}",s_separate);
-
     return 0;
 }
