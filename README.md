@@ -47,7 +47,7 @@ Mi objetivo era crear una solución ligera pero potente para acceder a informaci
 - CMake (versión 3.16 o superior)
 - Ninja (recomendado para compilaciones más rápidas)
 - Librerías:
-  - OpenSSL
+  - [OpenSSL](https://github.com/openssl/openssl)
   - CURL
   - CPR
   - LEXBOR
