@@ -48,10 +48,11 @@ Mi objetivo era crear una solución ligera pero potente para acceder a informaci
 - Ninja (recomendado para compilaciones más rápidas)
 - Librerías:
   - [OpenSSL](https://github.com/openssl/openssl)
-  - CURL
-  - CPR
-  - LEXBOR
-  - FMT
+  - [CURL](https://curl.se/)
+  - [CPR](https://github.com/libcpr/cpr)
+  - [LEXBOR](https://lexbor.com/)
+  - [FMT](https://fmt.dev/11.1/)
+  - [Arg.h](https://github.com/adishavit/argh)
 
 ---
 

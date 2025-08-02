@@ -78,25 +78,6 @@ int main(int argc, char * argv[]){
 
 	const string html = loadContentBCentral();
 
-	/*
-	const char* home_dir = std::getenv("HOME");
-	 if (home_dir != nullptr) {
-	 	fs::path cache_path{"/home/sweb/.scrapy-indicadores/cache/13-7-2025.html"};
-	 }else{
-	 	fs::path cache_path{"./.scrapy-indicadores/cache/13-7-2025.html"};
-	 }
-
-	cout << cache_path.c_str() << "\n";
-	if(!fs::exists(cache_path)){
-		cout << "No existe \n";
-		fs::create_directories(cache_path.parent_path());
-		std::ofstream ofs(cache_path);
-    	ofs << html;
-    	ofs.close();
-	}	
-	*/
-
-
 	size_t size;
 	lxb_status_t status;        	 
 	lxb_html_document_t  * document;
