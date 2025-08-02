@@ -69,6 +69,7 @@ Ejemplo de caclulo
 ```sh
 indicadores --uf=7.8 
 ```
+```sh
  1 de Agosto 2025
  -------------------------------
  | UF(7.8)       |     305.556 |
@@ -82,7 +83,7 @@ indicadores --uf=7.8
  | Plata(onza)   |       36,71 |
  | Cobre(Libra)  |        4,38 |
  -------------------------------
-
+```
 
 
 📬 Contacto
