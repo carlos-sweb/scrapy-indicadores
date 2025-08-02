@@ -27,6 +27,7 @@ if(IS_TERMUX)
     set(LEXBOR_STATIC "$ENV{HOME}/lexbor/build/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "$ENV{HOME}/lexbor/source")
     set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")
+    set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")
 else()
     # Rutas para Linux estándar
     set(CPR_INCLUDE_DIR "/usr/local/include/cpr")
@@ -34,6 +35,7 @@ else()
     set(LEXBOR_STATIC "/usr/local/lib64/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "/usr/local/include")
     set(FMT_STATIC "/usr/local/lib64/libfmt.a")
+    set(INSTALL_BIN_DIR "/opt/${PROJECT_NAME}/bin" CACHE PATH "Binary install directory for Linux")
 endif()
 
 add_executable(
@@ -57,7 +59,13 @@ set_target_properties(indicadores PROPERTIES
 )
 include_directories(includes ${CPR_INCLUDE_DIR} ${LEXBOR_INCLUDE_DIR})
 include(GNUInstallDirs)
+
+#install(TARGETS indicadores
+#    RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+#)
+
 install(TARGETS indicadores
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    #RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    RUNTIME DESTINATION ${INSTALL_BIN_DIR}
 )
