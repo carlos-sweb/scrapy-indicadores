@@ -2,6 +2,7 @@
 #define INDICADORES_HELPER_H
 #define URl_BCENTRAL "https://si3.bcentral.cl//Indicadoressiete/secure/Indicadoresdiarios.aspx"
 #include <string>
+#include <fmt/base.h>
 #include <lexbor/html/html.h>
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
@@ -13,8 +14,11 @@ const char* meses[] = {
 	"Octubre","Noviembre","Diciembre"
 };
 
+void showJsonValue(const string &uf,const string &dolar,const string &euro,const string &yen,const string &golden , const string &silver , const string &copper){
+	fmt::print("{{\n \033[32m\"uf\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"dolar\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"euro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"yen\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"oro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"plata\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"cobre\"\033[00m : \033[33m\"{}\"\033[00m\n}}\n",uf,dolar,euro,yen,golden,silver,copper);
+}
 
-const string cleanValue(string valueUF){
+const string cleanValue(const string &valueUF){
 	if(valueUF == "ND")
 		return "0.0";
 	string output="";	
@@ -25,7 +29,7 @@ const string cleanValue(string valueUF){
 	return output;		
 }
 
-const string int_CLP(int cal){
+const string int_CLP(const int &cal){
 	string output="";
 	const string body = to_string(cal);
 	int position_separate=0;
@@ -42,8 +46,8 @@ const string int_CLP(int cal){
 }
 
 const std::string blockBase(
-	const string color,
-	const string text,
+	const string &color,
+	const string &text,
 	int rows,
 	int text_indent=1
 	){	
@@ -63,7 +67,7 @@ const std::string blockBase(
 	}	
 	return output;
 }
-const std::string blockLeftGreen(string text,int rows ,int text_indent=1){	
+const std::string blockLeftGreen(const string &text,int rows ,int text_indent=1){	
  	return blockBase("\033[32m",text,rows,text_indent);
 }
 const std::string blockLeftYellow(string text,int rows ,int text_indent=1){	

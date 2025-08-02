@@ -39,7 +39,7 @@ void printIndicador(
 int main(int argc, char * argv[]){
 	argh::parser cmdl(argc, argv);
 
-
+	bool json_f = false;
 
 	const int row_green = 14,
 	row_yellow = 12;
@@ -49,6 +49,7 @@ int main(int argc, char * argv[]){
 		v_uf{.exists=false},
 		v_dolar{.exists=false},
 		v_euro{.exists=false};
+
 	const string s_separate = " -------------------------------\n",
 	string_today_date = fmt::format(
 		"\033[32m{} de {} {}\033[00m",
@@ -56,6 +57,10 @@ int main(int argc, char * argv[]){
 		meses[now->tm_mon],
 		(now->tm_year+1900)
 	);
+
+	if(cmdl["json"]){
+		json_f = true;
+	}
 
 	if(cmdl({"uf"})){
 		v_uf.s_vl = cmdl({"uf" }).str();
@@ -98,9 +103,7 @@ int main(int argc, char * argv[]){
 	if(document != NULL){lxb_html_document_destroy(document);}
 
 	// Solo puedo obtener el mes en forma de numero
-	//fmt::print(" {:%d de %m %Y}", fmt::localtime(t));
-    fmt::print("\n");
-    fmt::print(" {}\n",string_today_date);
+	//fmt::print(" {:%d de %m %Y}", fmt::localtime(t));    
 
 	
 
@@ -138,16 +141,23 @@ int main(int argc, char * argv[]){
 		}		
 	}
 
-	fmt::print("{}",s_separate);
-	printIndicador(valueUF,"UF",row_green,row_yellow);
-	printIndicador(valueDolar,"Dolar",row_green,row_yellow);
-	printIndicador(valueEuro,"Euro",row_green,row_yellow);
-	printIndicador(valueYen,"Yen",row_green,row_yellow);
-	fmt::print("{}",s_separate);
-	printIndicador(valueGold,"Oro(onza)",row_green,row_yellow);
-	printIndicador(valueSilver,"Plata(onza)",row_green,row_yellow);
-	printIndicador(valueCopper,"Cobre(Libra)",row_green,row_yellow);
-	fmt::print("{}",s_separate);
+	if( json_f ){		
+		showJsonValue(valueUF,valueDolar,valueEuro,valueYen,valueGold,valueSilver,valueCopper);
+	}else{
+		fmt::print("\n");
+    	fmt::print(" {}\n",string_today_date);
+		fmt::print("{}",s_separate);
+		printIndicador(valueUF,"UF",row_green,row_yellow);
+		printIndicador(valueDolar,"Dolar",row_green,row_yellow);
+		printIndicador(valueEuro,"Euro",row_green,row_yellow);
+		printIndicador(valueYen,"Yen",row_green,row_yellow);
+		fmt::print("{}",s_separate);
+		printIndicador(valueGold,"Oro(onza)",row_green,row_yellow);
+		printIndicador(valueSilver,"Plata(onza)",row_green,row_yellow);
+		printIndicador(valueCopper,"Cobre(Libra)",row_green,row_yellow);
+		fmt::print("{}",s_separate);	
+	}
+	
 
     return 0;
 }
