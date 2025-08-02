@@ -64,6 +64,26 @@ cmake -S . -B build -G Ninja
 ninja -C build install
 ./build/indicadores
 ```
+Ejemplo de caclulo
+
+```sh
+indicadores --uf=7.8 
+```
+ 1 de Agosto 2025
+ -------------------------------
+ | UF(7.8)       |     305.556 |
+ -------------------------------
+ | UF            |   39.173,95 |
+ | Dolar         |      976,80 |
+ | Euro          |    1.116,22 |
+ | Yen           |    150,7367 |
+ -------------------------------
+ | Oro(onza)     |    3.295,19 |
+ | Plata(onza)   |       36,71 |
+ | Cobre(Libra)  |        4,38 |
+ -------------------------------
+
+
 
 📬 Contacto
 Para consultas o colaboraciones, contáctame en:
