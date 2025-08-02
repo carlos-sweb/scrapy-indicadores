@@ -56,14 +56,14 @@ Mi objetivo era crear una solución ligera pero potente para acceder a informaci
 
 ---
 
-### **Instalación de Dependencias**
-**Linux Estándar (Ubuntu/Debian):**
+## 📄 Instalación y Uso
 
-```bash
-sudo apt update
-sudo apt install -y build-essential cmake ninja-build libcurl4-openssl-dev libssl-dev
+```sh
+mkdir build
+cmake -S . -B build -G Ninja
+ninja -C build install
+./build/indicadores
 ```
-
 
 📬 Contacto
 Para consultas o colaboraciones, contáctame en:
