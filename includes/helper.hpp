@@ -2,10 +2,15 @@
 #define INDICADORES_HELPER_H
 #define URl_BCENTRAL "https://si3.bcentral.cl//Indicadoressiete/secure/Indicadoresdiarios.aspx"
 #include <string>
+#include <cpr/cpr.h>
 #include <fmt/base.h>
 #include <lexbor/html/html.h>
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
+
+using namespace fmt;
+using namespace std;
+using namespace cpr;
 
 const char* meses[] = {
 	"Enero","Febrero","Marzo", 
@@ -16,7 +21,7 @@ const char* meses[] = {
 
 
 void showJsonValue(const string &uf,const string &dolar,const string &euro,const string &yen,const string &golden , const string &silver , const string &copper){
-	fmt::print("{{\n \033[32m\"uf\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"dolar\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"euro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"yen\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"oro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"plata\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"cobre\"\033[00m : \033[33m\"{}\"\033[00m\n}}\n",uf,dolar,euro,yen,golden,silver,copper);
+	print("{{\n \033[32m\"uf\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"dolar\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"euro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"yen\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"oro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"plata\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"cobre\"\033[00m : \033[33m\"{}\"\033[00m\n}}\n",uf,dolar,euro,yen,golden,silver,copper);
 }
 
 const string cleanValue(const string &valueUF){
@@ -46,7 +51,7 @@ const string int_CLP(const int &cal){
 	return output;
 }
 
-const std::string blockBase(
+const string blockBase(
 	const string &color,
 	const string &text,
 	int rows,
@@ -68,15 +73,15 @@ const std::string blockBase(
 	}	
 	return output;
 }
-const std::string blockLeftGreen(const string &text,int rows ,int text_indent=1){	
+const string blockLeftGreen(const string &text,int rows ,int text_indent=1){	
  	return blockBase("\033[32m",text,rows,text_indent);
 }
-const std::string blockLeftYellow(string text,int rows ,int text_indent=1){	
+const string blockLeftYellow(string text,int rows ,int text_indent=1){	
  	return blockBase("\033[33m",text,rows,text_indent);
 }
 
-const std::string getText(lxb_dom_element_t *element){
-    std::string text_full = "";
+const string getText(lxb_dom_element_t *element){
+    string text_full = "";
     lxb_dom_node_t * node = (lxb_dom_node_t * ) element;
     lxb_dom_node_t * current_node = lxb_dom_node_first_child( node );
     while( current_node != NULL){
@@ -91,7 +96,7 @@ const std::string getText(lxb_dom_element_t *element){
 }
 
 const string loadContentBCentral(){	
-    auto response = cpr::Get(cpr::Url{URl_BCENTRAL});    
+    auto response = Get(Url{URl_BCENTRAL});    
     return response.status_code == 200 ? response.text : "";
 }
 
@@ -119,13 +124,10 @@ string ById(string value, lxb_html_document_t * document , lxb_dom_element_t * b
 	return getText(element);
 }
 
-
-
 typedef struct{
 	float f_vl;
 	string s_vl;
 	bool exists;
 } vlBcentral;
-
 
 #endif

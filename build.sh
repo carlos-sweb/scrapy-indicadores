@@ -4,4 +4,4 @@ if [ ! -d build ]; then
 fi
 cmake -S . -B build -G Ninja
 ninja -C build install
-./build/indicadores
+./build/indicadores $1

@@ -3,19 +3,16 @@
 #include <iostream>
 #include <memory.h>
 using namespace std;
-#include <cpr/cpr.h>
-#include <argh.h>
-#include <termcolor.hpp>
-#include <lexbor/html/html.h>
-#include <lexbor/html/parser.h>
-#include <lexbor/dom/interfaces/element.h>
 #include <ctime>
 #include <iomanip>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include "helper.hpp"
-namespace fs = std::filesystem;
+using namespace std;
+#include <argh.h>
+using namespace argh;
+namespace fs = filesystem;
 #include <fmt/base.h>
 #include <fmt/chrono.h>
 
@@ -45,14 +42,14 @@ void printIndicador( const string valueString,
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int argc, char * argv[]){
 
-	argh::parser cmdl(argc, argv);
+	parser cmdl(argc, argv);
 
 	bool json_f = false;
 
 	const int row_green = 14,
 	row_yellow = 12;
-	std::time_t t = std::time(nullptr);
-    std::tm* now = std::localtime(&t);
+	time_t t = time(nullptr);
+    tm* now = localtime(&t);
     	
 	vlBcentral 
 		v_uf{.exists=false},
@@ -116,7 +113,7 @@ int main(int argc, char * argv[]){
 	// row_green+row_yellow+5;	
 	if( v_uf.exists){
 		if(valueUF != "ND" ){
-			int cal_uf = v_uf.f_vl*std::stof(cleanValue(valueUF));
+			int cal_uf = v_uf.f_vl*stof(cleanValue(valueUF));
 			fmt::print("{} {}{}|\n",
 				s_separate,
 				blockLeftGreen(fmt::format("UF({})",v_uf.s_vl), row_green),
@@ -128,7 +125,7 @@ int main(int argc, char * argv[]){
 		// se podria agregar un mensaje 
 		// cunado el valor es ND para sabados y domingos
 		if(valueDolar != "ND"){			
-			int cal_dolar = v_dolar.f_vl*std::stof(cleanValue(valueDolar));
+			int cal_dolar = v_dolar.f_vl*stof(cleanValue(valueDolar));
 			fmt::print("{} {}{}|\n",
 				s_separate,
 				blockLeftGreen(fmt::format("Dolar({})",v_dolar.s_vl), row_green),
@@ -138,7 +135,7 @@ int main(int argc, char * argv[]){
 	}
 	if( v_euro.exists){
 		if(valueEuro != "ND"){
-			int cal_euro = v_euro.f_vl*std::stof(cleanValue(valueEuro));
+			int cal_euro = v_euro.f_vl*stof(cleanValue(valueEuro));
 			fmt::print("{} {}{}|\n",
 				s_separate,
 				blockLeftGreen(string("Euro(").append(v_euro.s_vl+")"), row_green),
