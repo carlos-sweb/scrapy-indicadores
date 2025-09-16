@@ -14,6 +14,7 @@ const char* meses[] = {
 	"Octubre","Noviembre","Diciembre"
 };
 
+
 void showJsonValue(const string &uf,const string &dolar,const string &euro,const string &yen,const string &golden , const string &silver , const string &copper){
 	fmt::print("{{\n \033[32m\"uf\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"dolar\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"euro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"yen\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"oro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"plata\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"cobre\"\033[00m : \033[33m\"{}\"\033[00m\n}}\n",uf,dolar,euro,yen,golden,silver,copper);
 }
@@ -117,6 +118,8 @@ string ById(string value, lxb_html_document_t * document , lxb_dom_element_t * b
 	}
 	return getText(element);
 }
+
+
 
 typedef struct{
 	float f_vl;

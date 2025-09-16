@@ -19,13 +19,20 @@ namespace fs = std::filesystem;
 #include <fmt/base.h>
 #include <fmt/chrono.h>
 
-
-void printIndicador(
-	const string valueString,
-	const string name ,
-	const int row_green ,
-	const int row_yellow
-){
+/**
+ * @function printIndicador
+ * @description Imprime una fila con el valor del indicador y su nombre 
+ * @param valueString - El valor del indicador en formato de cadena
+ * @param name - nombre del indicador
+ * @param row_green - la cantidad de espacios en total 
+ * para la primera parte de la fila que se asigna el color verde
+ * @param row_yellow la cantidad de espacios en total 
+ * para la primera parte de la fila que se asigna el color amarillo
+ * @example : | UF         | 39.485.65 |
+ * */
+void printIndicador( const string valueString, 
+	const string name , const int row_green , 
+	const int row_yellow ){
 	
 	fmt::print(" {}{}|\n",
 		blockLeftGreen(name, row_green),
@@ -37,6 +44,7 @@ void printIndicador(
 
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int argc, char * argv[]){
+
 	argh::parser cmdl(argc, argv);
 
 	bool json_f = false;
@@ -44,7 +52,8 @@ int main(int argc, char * argv[]){
 	const int row_green = 14,
 	row_yellow = 12;
 	std::time_t t = std::time(nullptr);
-    std::tm* now = std::localtime(&t);	
+    std::tm* now = std::localtime(&t);
+    	
 	vlBcentral 
 		v_uf{.exists=false},
 		v_dolar{.exists=false},
@@ -102,10 +111,7 @@ int main(int argc, char * argv[]){
 	// free document
 	if(document != NULL){lxb_html_document_destroy(document);}
 
-	// Solo puedo obtener el mes en forma de numero
-	//fmt::print(" {:%d de %m %Y}", fmt::localtime(t));    
-
-	
+	fmt::print(" {}\n",string_today_date);
 
 	// row_green+row_yellow+5;	
 	if( v_uf.exists){
@@ -143,10 +149,8 @@ int main(int argc, char * argv[]){
 
 	if( json_f ){		
 		showJsonValue(valueUF,valueDolar,valueEuro,valueYen,valueGold,valueSilver,valueCopper);
-	}else{
-		fmt::print("\n");
-    	fmt::print(" {}\n",string_today_date);
-		fmt::print("{}",s_separate);
+	}else{		
+    	fmt::print("{}",s_separate);
 		printIndicador(valueUF,"UF",row_green,row_yellow);
 		printIndicador(valueDolar,"Dolar",row_green,row_yellow);
 		printIndicador(valueEuro,"Euro",row_green,row_yellow);
@@ -157,7 +161,6 @@ int main(int argc, char * argv[]){
 		printIndicador(valueCopper,"Cobre(Libra)",row_green,row_yellow);
 		fmt::print("{}",s_separate);	
 	}
-	
 
     return 0;
 }
