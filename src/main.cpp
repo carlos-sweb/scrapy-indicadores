@@ -42,27 +42,28 @@ void printIndicador( const string valueString,
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int argc, char * argv[]){
 
-	parser cmdl(argc, argv);
-
-	bool json_f = false;
-
-	const int row_green = 14,
-	row_yellow = 12;
 	time_t t = time(nullptr);
     tm* now = localtime(&t);
-    	
+    const string html= loadContentBCentral();
+    string_today_date = fmt::format(
+		"\033[32m{} de {} {}\033[00m",
+		now->tm_mday,
+		meses[now->tm_mon],
+		(now->tm_year+1900)
+	);
+
+	parser cmdl(argc, argv);
+	bool json_f = false;
+	const int row_green = 14,
+	row_yellow = 12;
+	
 	vlBcentral 
 		v_uf{.exists=false},
 		v_dolar{.exists=false},
 		v_euro{.exists=false};
 
 	const string s_separate = " -------------------------------\n",
-	string_today_date = fmt::format(
-		"\033[32m{} de {} {}\033[00m",
-		now->tm_mday,
-		meses[now->tm_mon],
-		(now->tm_year+1900)
-	);
+	
 
 	if(cmdl["json"]){
 		json_f = true;
@@ -86,8 +87,7 @@ int main(int argc, char * argv[]){
 			v_euro.exists = true;
 		}
 	}
-
-	const string html = loadContentBCentral();
+	
 
 	size_t size;
 	lxb_status_t status;        	 
@@ -97,6 +97,31 @@ int main(int argc, char * argv[]){
 	status=lxb_html_document_parse(document,(const lxb_char_t *)html.c_str(),html.length());
 	if(status!=LXB_STATUS_OK){exit(EXIT_FAILURE);}
 	body = lxb_dom_interface_element(document->body);
+
+	/*
+	Tratando de mejorar el codigo
+	const map<string,string> test = {
+		{"UF","lblValor1_1"},
+		{"Dolar","lblValor1_3"},
+		{"Euro","lblValor1_5"},
+		{"Yen","lblValor1_10"},
+		{"Oro","lblValor2_3"},
+		{"Plata","lblValor2_4"},
+		{"Cobre","lblValor2_5"}
+	};
+	map<string,float> test_1 = {};
+	for(const auto & [ name , id ] : test){		
+		const string result = ById(id,document,body);
+		test_1.insert({name,stof(cleanValue(result))});		
+		//fmt::print(" | {:<14}|{:>13} |\n",key,vv);
+	}
+
+	for(const auto &[name,value]: test_1){
+		fmt::print("{} => {}\n",name,value);
+	}
+	*/
+
+	
 	// search value from ID
 	const string valueUF=ById("lblValor1_1",document,body),
 	valueDolar=ById("lblValor1_3",document,body),

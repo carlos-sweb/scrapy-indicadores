@@ -4,9 +4,13 @@
 #include <string>
 #include <cpr/cpr.h>
 #include <fmt/base.h>
+#include <fmt/chrono.h>
 #include <lexbor/html/html.h>
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
+#include <filesystem>
+#include <fstream>
+namespace fs = filesystem;
 
 using namespace fmt;
 using namespace std;
@@ -24,12 +28,23 @@ void showJsonValue(const string &uf,const string &dolar,const string &euro,const
 	print("{{\n \033[32m\"uf\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"dolar\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"euro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"yen\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"oro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"plata\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"cobre\"\033[00m : \033[33m\"{}\"\033[00m\n}}\n",uf,dolar,euro,yen,golden,silver,copper);
 }
 
+/**
+ * @cleanValue
+ * */
 const string cleanValue(const string &valueUF){
+	// en caso que el valor capturado de la pagina web
+	// del banco central retorne ND
+	// Esto ocurre cuando no hay valor , fines de semana y feriados
 	if(valueUF == "ND")
 		return "0.0";
-	string output="";	
-	for(int i = (valueUF.length()-1);i >= 0;i--){
-		const string val = string(1,valueUF.at(i));		
+	// En este punto , obtenemos una reprecentación de un numero 
+	// Que luego en formato no sirve para hacer calculos matematicos, 
+	// ya que los separadores de miles son puntos y los decimales son comas
+	// lo cual no sirve para hacer calculos matematicos con c++ y el compilador
+	// Ejemplo : UF 39.485,65 , lo que me sirve es 39485.65 ( numero flotante)
+	string output="";
+	for(int i = (valueUF.length()-1);i>=0;i--){
+		const string val = string(1,valueUF.at(i));
 		if(val!="."){output.insert(0, val == "," ? "." : val );}
 	}
 	return output;		
@@ -80,6 +95,12 @@ const string blockLeftYellow(string text,int rows ,int text_indent=1){
  	return blockBase("\033[33m",text,rows,text_indent);
 }
 
+/**
+ * @name getText
+ * @description Obtenemos el contenido de texto 
+ * proveniende desde un id de un elemento <span id="idtarget">Text...</span>
+ * */
+
 const string getText(lxb_dom_element_t *element){
     string text_full = "";
     lxb_dom_node_t * node = (lxb_dom_node_t * ) element;
@@ -96,8 +117,50 @@ const string getText(lxb_dom_element_t *element){
 }
 
 const string loadContentBCentral(){	
-    auto response = Get(Url{URl_BCENTRAL});    
-    return response.status_code == 200 ? response.text : "";
+
+	const char* homeEnv = std::getenv("HOME");	   
+	time_t t = time(nullptr);
+    tm* now = localtime(&t);
+    string html="";
+    const string cache_filename = fmt::format(
+	"{}-{}-{}.html",now->tm_mday,now->tm_mon,(now->tm_year+1900));
+	fs::path homeScrapy = homeEnv;
+	fs::path homeScrapyCache = homeScrapy / ".scrapy-indicadores"; 
+
+	if (!fs::exists(homeScrapyCache) && !fs::is_directory(homeScrapyCache)) {        
+        if(fs::create_directories(homeScrapyCache)){
+        	// En este punto no se pudo crear
+        }
+    }
+    fs::path cache_today = homeScrapyCache / cache_filename;
+
+    if(!fs::exists(cache_today)){
+    	std::cout << "No existe el archivo \n";
+		std::ofstream salida(cache_today);
+		if (!salida) {
+			std::cerr << "No se pudo crear el archivo.\n";
+			//return 1;
+		}
+		auto response = Get(Url{URl_BCENTRAL});    
+		html = response.status_code == 200 ? response.text : "";
+		// Podemos procesar en caso de error
+		salida << html;		
+		salida.close();
+    }else{
+    	
+    	std::ifstream inFile;
+    	inFile.open(cache_today); 
+		if (!inFile.is_open()) {
+			std::cerr << "Error opening file!" << std::endl;
+			//return 1; // Indicate an error
+		}
+		string line;
+		while(std::getline(inFile,line)){			
+			html.append(line);
+		}		
+		inFile.close();
+    }
+    return html;
 }
 
 string ById(string value, lxb_html_document_t * document , lxb_dom_element_t * body){
