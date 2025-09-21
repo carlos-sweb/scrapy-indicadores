@@ -38,7 +38,6 @@ else()
     set(INSTALL_BIN_DIR "/opt/${PROJECT_NAME}/bin" CACHE PATH "Binary install directory for Linux")   
 endif()
 
-
 add_compile_definitions(INSTALL_BIN_DIR="${INSTALL_BIN_DIR}")
 
 add_executable(

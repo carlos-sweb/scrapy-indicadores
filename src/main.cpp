@@ -15,6 +15,25 @@ using namespace argh;
 namespace fs = filesystem;
 #include <fmt/base.h>
 #include <fmt/chrono.h>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+
+
+// Convertir a minúsculas
+string to_lowercase(const string& str) {
+    string result = str;
+    transform(result.begin(), result.end(), result.begin(),
+        [](unsigned char c) { return tolower(c); });
+    return result;
+}
+
+// Convertir a mayúsculas
+string to_uppercase(const string& str) {
+    string result = str;
+    transform(result.begin(), result.end(), result.begin(),
+        [](unsigned char c) { return toupper(c); });
+    return result;
+}
 
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int, char * argv[]){
@@ -49,7 +68,7 @@ int main(int, char * argv[]){
     tm* now = localtime(&t);
     const string html= loadContentBCentral(),
     string_today_date = fmt::format(
-		"\033[32m{} de {} {}\033[00m",
+		"{} de {} {}",
 		now->tm_mday,
 		meses[now->tm_mon],
 		(now->tm_year+1900)
@@ -118,26 +137,29 @@ int main(int, char * argv[]){
 		
 	}
 
-	const char * expresion_txt = "%s:%s\n";
-	const char * expresion_table = "%s:%s\n";
 	
-	if(formato == "table"){
-		fmt::print("\n {}\n {}\n",string_today_date,"------------------------------");
-		for(const auto &[name,value] : target_value ){
+	if(formato == "table"){	
+		int rows = 30;
+		fmt::print(
+			"+{0:-^{1}}+\n"
+			"|\033[32m{2: ^{1}}\033[00m|\n"
+			"+{3:-^{1}}+\n",
+			"",rows,string_today_date,"+");
 
-			fmt::print("|\033[32m{:<14}\033[00m|\033[33m{:>14}\033[00m|\n",name,value);
-		}
+		for(const auto &[name,value] : target_value ){			
+			fmt::print("|\033[32m{1:<{0}}\033[00m| \033[33m{2:>{0}}\033[00m|\n",((rows/2)-1),name,value);
+		}		
+		fmt::print("+{0:-^{1}}+\n","+",rows);
+
 	}else if(formato == "json"){		
 		fmt::print("{{\n");
-		for(const auto &[n,value] : target_value ){
-			 string name = n;	
-			 transform(name.begin(),name.end(),name.begin(), ::tolower);
-			 fmt::print(" \"{}\":{}\n",name,cleanValue(value));
+		for(const auto &[name,value] : target_value ){			 
+			 fmt::print(" \"{0}\":{1}\n",to_lowercase(name),cleanValue(value));
 		}
 		fmt::print("}}\n");
-	}else if(formato == "txt"){
-		for(const auto &[name,value] : target_value ){			 
-			printf(expresion_txt ,name.c_str(),cleanValue(value).c_str());			
+	}else if(formato == "txt"){		
+		for(const auto &[name,value] : target_value ){	
+			fmt::print("{0}:{1}\n",to_lowercase(name),cleanValue(value));
 		}
 	}
 	
@@ -156,7 +178,7 @@ int main(int, char * argv[]){
 			result
 		);		
 	*/
-	if(formato == "table") fmt::print(" {}\n","------------------------------");
+	
 
 	// free document
 	if(document != NULL){lxb_html_document_destroy(document);}
