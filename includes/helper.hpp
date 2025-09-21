@@ -118,13 +118,12 @@ const string getText(lxb_dom_element_t *element){
 
 const string loadContentBCentral(){	
 
-	const char* homeEnv = std::getenv("HOME");	   
 	time_t t = time(nullptr);
     tm* now = localtime(&t);
     string html="";
     const string cache_filename = fmt::format(
 	"{}-{}-{}.html",now->tm_mday,now->tm_mon,(now->tm_year+1900));
-	fs::path homeScrapy = homeEnv;
+	fs::path homeScrapy = INSTALL_BIN_DIR;
 	fs::path homeScrapyCache = homeScrapy / ".scrapy-indicadores"; 
 
 	if (!fs::exists(homeScrapyCache) && !fs::is_directory(homeScrapyCache)) {        

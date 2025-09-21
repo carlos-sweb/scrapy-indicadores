@@ -27,7 +27,7 @@ if(IS_TERMUX)
     set(LEXBOR_STATIC "$ENV{HOME}/lexbor/build/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "$ENV{HOME}/lexbor/source")
     set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")
-    set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")
+    set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")    
 else()
     # Rutas para Linux estándar
     set(CPR_INCLUDE_DIR "/usr/local/include/cpr")
@@ -35,8 +35,11 @@ else()
     set(LEXBOR_STATIC "/usr/local/lib64/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "/usr/local/include")
     set(FMT_STATIC "/usr/local/lib64/libfmt.a")
-    set(INSTALL_BIN_DIR "/opt/${PROJECT_NAME}/bin" CACHE PATH "Binary install directory for Linux")
+    set(INSTALL_BIN_DIR "/opt/${PROJECT_NAME}/bin" CACHE PATH "Binary install directory for Linux")   
 endif()
+
+
+add_compile_definitions(INSTALL_BIN_DIR="${INSTALL_BIN_DIR}")
 
 add_executable(
     indicadores

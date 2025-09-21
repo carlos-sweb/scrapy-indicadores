@@ -16,36 +16,10 @@ namespace fs = filesystem;
 #include <fmt/base.h>
 #include <fmt/chrono.h>
 
-/**
- * @function printIndicador
- * @description Imprime una fila con el valor del indicador y su nombre 
- * @param valueString - El valor del indicador en formato de cadena
- * @param name - nombre del indicador
- * @param row_green - la cantidad de espacios en total 
- * para la primera parte de la fila que se asigna el color verde
- * @param row_yellow la cantidad de espacios en total 
- * para la primera parte de la fila que se asigna el color amarillo
- * @example : | UF         | 39.485.65 |
- * */
-void printIndicador( const string valueString, 
-	const string name , const int row_green , 
-	const int row_yellow ){
-	
-	fmt::print(" {}{}|\n",
-		blockLeftGreen(name, row_green),
-		blockLeftYellow(fmt::format("{:>11}",valueString),row_yellow)
-	);	
-
-}
-
-template <typename T, size_t N>
-bool in_array(const T (&array)[N], const T &value) {
-    return find(begin(array), end(array), value) != end(array);
-}
-
-
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int, char * argv[]){
+
+	
 	
 	parser cmdl(argv);
 	string formato = "";
