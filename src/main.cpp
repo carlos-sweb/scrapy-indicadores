@@ -38,13 +38,42 @@ void printIndicador( const string valueString,
 
 }
 
+template <typename T, size_t N>
+bool in_array(const T (&array)[N], const T &value) {
+    return find(begin(array), end(array), value) != end(array);
+}
+
 
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
-int main(int argc, char * argv[]){
+int main(int, char * argv[]){
+	
+	parser cmdl(argv);
+	string formato = "";
+	const string formato_aceptados[4] = {"table","json","txt"};
+	bool formato_aceptado;
+
+	if(cmdl[{"-h","--help"}]){		
+		printf(" \n Indicadores Chile.\n\n Modo de uso:\n\n");		
+		printf(" -f,--formato FORMATO : Tipo de formato de salida\n");
+		printf("                        table,json,txt\n");
+		printf(" -h,--help            : Modo de uso\n\n");
+		return 0;
+	}
+		
+	cmdl({"-f","--formato"},"table") >> formato;
+	formato_aceptado = find(begin(formato_aceptados),end(formato_aceptados),formato) != end(formato_aceptados);
+		
+	if(!formato_aceptado){
+		printf("\n \033[31mError\033[00m: El formato '\033[33m%s\033[00m' no es válido\n",formato.c_str());
+		printf(" * table (por defecto)\n");
+		printf(" * json\n");
+		printf(" * txt\n\n");
+		return 0;
+	}
 
 	time_t t = time(nullptr);
     tm* now = localtime(&t);
-    const string html= loadContentBCentral();
+    const string html= loadContentBCentral(),
     string_today_date = fmt::format(
 		"\033[32m{} de {} {}\033[00m",
 		now->tm_mday,
@@ -52,7 +81,7 @@ int main(int argc, char * argv[]){
 		(now->tm_year+1900)
 	);
 
-	parser cmdl(argc, argv);
+	
 	bool json_f = false;
 	const int row_green = 14,
 	row_yellow = 12;
@@ -62,12 +91,10 @@ int main(int argc, char * argv[]){
 		v_dolar{.exists=false},
 		v_euro{.exists=false};
 
-	const string s_separate = " -------------------------------\n",
+	const string s_separate = " -------------------------------\n";
 	
 
-	if(cmdl["json"]){
-		json_f = true;
-	}
+	
 
 	if(cmdl({"uf"})){
 		v_uf.s_vl = cmdl({"uf" }).str();
@@ -97,10 +124,10 @@ int main(int argc, char * argv[]){
 	status=lxb_html_document_parse(document,(const lxb_char_t *)html.c_str(),html.length());
 	if(status!=LXB_STATUS_OK){exit(EXIT_FAILURE);}
 	body = lxb_dom_interface_element(document->body);
+	
+	//Tratando de mejorar el codigo
 
-	/*
-	Tratando de mejorar el codigo
-	const map<string,string> test = {
+	const vector<pair<string,string>> target_indicadores = {
 		{"UF","lblValor1_1"},
 		{"Dolar","lblValor1_3"},
 		{"Euro","lblValor1_5"},
@@ -109,33 +136,63 @@ int main(int argc, char * argv[]){
 		{"Plata","lblValor2_4"},
 		{"Cobre","lblValor2_5"}
 	};
-	map<string,float> test_1 = {};
-	for(const auto & [ name , id ] : test){		
-		const string result = ById(id,document,body);
-		test_1.insert({name,stof(cleanValue(result))});		
-		//fmt::print(" | {:<14}|{:>13} |\n",key,vv);
+	vector<pair<string,string>> target_value = {};
+
+	for(const auto &indicador : target_indicadores){
+		const string result = ById(indicador.second,document,body);
+		if(result != "ND") target_value.push_back({indicador.first,result});
+		
 	}
 
-	for(const auto &[name,value]: test_1){
-		fmt::print("{} => {}\n",name,value);
-	}
-	*/
-
+	const char * expresion_txt = "%s:%s\n";
+	const char * expresion_table = "%s:%s\n";
 	
-	// search value from ID
-	const string valueUF=ById("lblValor1_1",document,body),
-	valueDolar=ById("lblValor1_3",document,body),
-	valueEuro=ById("lblValor1_5",document,body),
-	valueYen=ById("lblValor1_10",document,body),
-	valueGold=ById("lblValor2_3",document,body),
-	valueSilver=ById("lblValor2_4",document,body),
-	valueCopper=ById("lblValor2_5",document,body);
+	if(formato == "table"){
+		fmt::print("\n {}\n {}\n",string_today_date,"------------------------------");
+		for(const auto &[name,value] : target_value ){
+
+			fmt::print("|\033[32m{:<14}\033[00m|\033[33m{:>14}\033[00m|\n",name,value);
+		}
+	}else if(formato == "json"){		
+		fmt::print("{{\n");
+		for(const auto &[n,value] : target_value ){
+			 string name = n;	
+			 transform(name.begin(),name.end(),name.begin(), ::tolower);
+			 fmt::print(" \"{}\":{}\n",name,cleanValue(value));
+		}
+		fmt::print("}}\n");
+	}else if(formato == "txt"){
+		for(const auto &[name,value] : target_value ){			 
+			printf(expresion_txt ,name.c_str(),cleanValue(value).c_str());			
+		}
+	}
+	
+	
+		
+	
+	/*
+	if( result != "ND" && formato == "table") fmt::print(
+			"|\033[32m{:<14}\033[00m|\033[33m{:>14}\033[00m|\n",
+			indicador.first,
+			result
+		);		
+		if( result != "ND" && formato == "json") fmt::print(
+			"{{ \"{}\":{}  }}\n",
+			indicador.first,
+			result
+		);		
+	*/
+	if(formato == "table") fmt::print(" {}\n","------------------------------");
+
 	// free document
 	if(document != NULL){lxb_html_document_destroy(document);}
+	
 
-	fmt::print(" {}\n",string_today_date);
+	
+	
 
 	// row_green+row_yellow+5;	
+	/*
 	if( v_uf.exists){
 		if(valueUF != "ND" ){
 			int cal_uf = v_uf.f_vl*stof(cleanValue(valueUF));
@@ -145,7 +202,8 @@ int main(int argc, char * argv[]){
 				blockLeftYellow(fmt::format("{:>11}",int_CLP(cal_uf)), row_yellow)
 			);
 		}		
-	}
+	}*/
+	/*
 	if( v_dolar.exists){
 		// se podria agregar un mensaje 
 		// cunado el valor es ND para sabados y domingos
@@ -157,7 +215,8 @@ int main(int argc, char * argv[]){
 				blockLeftYellow(fmt::format("{:>11}",int_CLP(cal_dolar)), row_yellow)
 			);
 		}
-	}
+	}*/
+	/*
 	if( v_euro.exists){
 		if(valueEuro != "ND"){
 			int cal_euro = v_euro.f_vl*stof(cleanValue(valueEuro));
@@ -168,7 +227,8 @@ int main(int argc, char * argv[]){
 			);
 		}		
 	}
-
+	*/
+	/*
 	if( json_f ){		
 		showJsonValue(valueUF,valueDolar,valueEuro,valueYen,valueGold,valueSilver,valueCopper);
 	}else{		
@@ -182,7 +242,7 @@ int main(int argc, char * argv[]){
 		printIndicador(valueSilver,"Plata(onza)",row_green,row_yellow);
 		printIndicador(valueCopper,"Cobre(Libra)",row_green,row_yellow);
 		fmt::print("{}",s_separate);	
-	}
+	}*/
 
     return 0;
 }

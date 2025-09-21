@@ -135,10 +135,10 @@ const string loadContentBCentral(){
     fs::path cache_today = homeScrapyCache / cache_filename;
 
     if(!fs::exists(cache_today)){
-    	std::cout << "No existe el archivo \n";
+    	//std::cout << "No existe el archivo \n";
 		std::ofstream salida(cache_today);
 		if (!salida) {
-			std::cerr << "No se pudo crear el archivo.\n";
+			//std::cerr << "No se pudo crear el archivo.\n";
 			//return 1;
 		}
 		auto response = Get(Url{URl_BCENTRAL});    
