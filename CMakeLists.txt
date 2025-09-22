@@ -28,6 +28,8 @@ if(IS_TERMUX)
     set(LEXBOR_INCLUDE_DIR "$ENV{HOME}/lexbor/source")
     set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")
     set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")    
+    set(ADA_INCLUDE_DIR "$ENV{HOME}/ada/include" )
+    set(ADA_STATIC "$ENV{HOME}/ada/build/src/libada.a")
 else()
     # Rutas para Linux estándar
     set(CPR_INCLUDE_DIR "/usr/local/include/cpr")
@@ -35,17 +37,17 @@ else()
     set(LEXBOR_STATIC "/usr/local/lib64/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "/usr/local/include")
     set(FMT_STATIC "/usr/local/lib64/libfmt.a")
+    
+    set(ADA_INCLUDE_DIR "/usr/local/include" )
+    set(ADA_STATIC "/usr/local/lib64/libada.a")
     set(INSTALL_BIN_DIR "/opt/${PROJECT_NAME}/bin" CACHE PATH "Binary install directory for Linux")   
 endif()
 
 add_compile_definitions(INSTALL_BIN_DIR="${INSTALL_BIN_DIR}")
 
-add_executable(
-    indicadores
-    src/main.cpp
-)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
-target_link_libraries(indicadores PRIVATE 
+target_link_libraries(${PROJECT_NAME} PRIVATE     
     curl 
     ssl 
     crypto 
@@ -53,13 +55,14 @@ target_link_libraries(indicadores PRIVATE
     ${FMT_STATIC}
     ${LEXBOR_STATIC} 
     ${CPR_LIBRARY}
+    ${ADA_STATIC}
 )
 
-set_target_properties(indicadores PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
     INSTALL_RPATH "/usr/local/lib64"
     BUILD_WITH_INSTALL_RPATH TRUE
 )
-include_directories(includes ${CPR_INCLUDE_DIR} ${LEXBOR_INCLUDE_DIR})
+include_directories(includes ${CPR_INCLUDE_DIR} ${LEXBOR_INCLUDE_DIR} ${ADA_INCLUDE_DIR})
 include(GNUInstallDirs)
 
 #install(TARGETS indicadores

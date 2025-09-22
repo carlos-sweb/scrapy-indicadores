@@ -16,7 +16,8 @@ namespace fs = filesystem;
 #include <fmt/base.h>
 #include <fmt/chrono.h>
 #include <fmt/format.h>
-#include <fmt/ranges.h>
+#include <fmt/ranges.h> 
+#include <ada.h>
 
 
 // Convertir a minúsculas
@@ -39,28 +40,54 @@ string to_uppercase(const string& str) {
 int main(int, char * argv[]){
 
 	
-	
 	parser cmdl(argv);
-	string formato = "";
+	string formato = "",url = "";
+	
 	const string formato_aceptados[4] = {"table","json","txt"};
 	bool formato_aceptado;
 
 	if(cmdl[{"-h","--help"}]){		
-		printf(" \n Indicadores Chile.\n\n Modo de uso:\n\n");		
-		printf(" -f,--formato FORMATO : Tipo de formato de salida\n");
-		printf("                        table,json,txt\n");
-		printf(" -h,--help            : Modo de uso\n\n");
+		fmt:print(
+			"\n"
+			" {0}\n\n"
+			" Modo de uso:\n"
+			"\n"			
+			" -f,--formato FORMATO  : Tipo de formato de salida\n"
+			"                         table(por defecto),json,txt\n"
+			" -s,--send URL         : Envia la información a la url\n"
+			"                         tipo POST(por defecto)\n"
+			" -h,--help             : Modo de Uso\n"
+			"\n",
+			"Indicadores Chile"			
+			);
+		
 		return 0;
 	}
-		
+
 	cmdl({"-f","--formato"},"table") >> formato;
+	cmdl({"-s","--send"},"") >> url;
+	
+	
+	auto ada_url = ada::parse(url); 	
+	if(!ada_url){
+		fmt::print(
+		"\n \033[31mError\033[00m: La URL '\033[33m{0}\033[00m' no es válida\n\n",
+		url
+		);
+	}
+	
+
+
 	formato_aceptado = find(begin(formato_aceptados),end(formato_aceptados),formato) != end(formato_aceptados);
 		
 	if(!formato_aceptado){
-		printf("\n \033[31mError\033[00m: El formato '\033[33m%s\033[00m' no es válido\n",formato.c_str());
-		printf(" * table (por defecto)\n");
-		printf(" * json\n");
-		printf(" * txt\n\n");
+		fmt::print(
+			"\n \033[31mError\033[00m: El formato '\033[33m{0}\033[00m' no es válido\n"
+			" * table (por defecto)\n"
+			" * json\n"
+			" * txt\n\n",
+			formato
+			);		
 		return 0;
 	}
 
@@ -134,8 +161,9 @@ int main(int, char * argv[]){
 	for(const auto &indicador : target_indicadores){
 		const string result = ById(indicador.second,document,body);
 		if(result != "ND") target_value.push_back({indicador.first,result});
-		
 	}
+	// free document
+	if(document != NULL){lxb_html_document_destroy(document);}
 
 	
 	if(formato == "table"){	
@@ -147,9 +175,10 @@ int main(int, char * argv[]){
 			"",rows,string_today_date,"+");
 
 		for(const auto &[name,value] : target_value ){			
-			fmt::print("|\033[32m{1:<{0}}\033[00m| \033[33m{2:>{0}}\033[00m|\n",((rows/2)-1),name,value);
+			fmt::print("| \033[32m{1:<{0}}\033[00m| \033[33m{2:>{0}}\033[00m |\n",((rows/2)-2),name,value);
+			fmt::print("+{0:-^{1}}+\n","+",rows);
 		}		
-		fmt::print("+{0:-^{1}}+\n","+",rows);
+		
 
 	}else if(formato == "json"){		
 		fmt::print("{{\n");
@@ -161,84 +190,7 @@ int main(int, char * argv[]){
 		for(const auto &[name,value] : target_value ){	
 			fmt::print("{0}:{1}\n",to_lowercase(name),cleanValue(value));
 		}
-	}
+	}		
 	
-	
-		
-	
-	/*
-	if( result != "ND" && formato == "table") fmt::print(
-			"|\033[32m{:<14}\033[00m|\033[33m{:>14}\033[00m|\n",
-			indicador.first,
-			result
-		);		
-		if( result != "ND" && formato == "json") fmt::print(
-			"{{ \"{}\":{}  }}\n",
-			indicador.first,
-			result
-		);		
-	*/
-	
-
-	// free document
-	if(document != NULL){lxb_html_document_destroy(document);}
-	
-
-	
-	
-
-	// row_green+row_yellow+5;	
-	/*
-	if( v_uf.exists){
-		if(valueUF != "ND" ){
-			int cal_uf = v_uf.f_vl*stof(cleanValue(valueUF));
-			fmt::print("{} {}{}|\n",
-				s_separate,
-				blockLeftGreen(fmt::format("UF({})",v_uf.s_vl), row_green),
-				blockLeftYellow(fmt::format("{:>11}",int_CLP(cal_uf)), row_yellow)
-			);
-		}		
-	}*/
-	/*
-	if( v_dolar.exists){
-		// se podria agregar un mensaje 
-		// cunado el valor es ND para sabados y domingos
-		if(valueDolar != "ND"){			
-			int cal_dolar = v_dolar.f_vl*stof(cleanValue(valueDolar));
-			fmt::print("{} {}{}|\n",
-				s_separate,
-				blockLeftGreen(fmt::format("Dolar({})",v_dolar.s_vl), row_green),
-				blockLeftYellow(fmt::format("{:>11}",int_CLP(cal_dolar)), row_yellow)
-			);
-		}
-	}*/
-	/*
-	if( v_euro.exists){
-		if(valueEuro != "ND"){
-			int cal_euro = v_euro.f_vl*stof(cleanValue(valueEuro));
-			fmt::print("{} {}{}|\n",
-				s_separate,
-				blockLeftGreen(string("Euro(").append(v_euro.s_vl+")"), row_green),
-				blockLeftYellow(fmt::format("{:>11}",int_CLP(cal_euro)), row_yellow)
-			);
-		}		
-	}
-	*/
-	/*
-	if( json_f ){		
-		showJsonValue(valueUF,valueDolar,valueEuro,valueYen,valueGold,valueSilver,valueCopper);
-	}else{		
-    	fmt::print("{}",s_separate);
-		printIndicador(valueUF,"UF",row_green,row_yellow);
-		printIndicador(valueDolar,"Dolar",row_green,row_yellow);
-		printIndicador(valueEuro,"Euro",row_green,row_yellow);
-		printIndicador(valueYen,"Yen",row_green,row_yellow);
-		fmt::print("{}",s_separate);
-		printIndicador(valueGold,"Oro(onza)",row_green,row_yellow);
-		printIndicador(valueSilver,"Plata(onza)",row_green,row_yellow);
-		printIndicador(valueCopper,"Cobre(Libra)",row_green,row_yellow);
-		fmt::print("{}",s_separate);	
-	}*/
-
     return 0;
 }
