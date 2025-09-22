@@ -69,7 +69,7 @@ int main(int, char * argv[]){
 	
 	
 	auto ada_url = ada::parse(url); 	
-	if(!ada_url){
+	if(!ada_url && url != ""){
 		fmt::print(
 		"\n \033[31mError\033[00m: La URL '\033[33m{0}\033[00m' no es válida\n\n",
 		url
