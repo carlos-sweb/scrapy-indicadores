@@ -57,32 +57,53 @@ Mi objetivo era crear una solución ligera pero potente para acceder a informaci
 ---
 
 ## 📄 Instalación y Uso
-
+build.sh
 ```sh
-mkdir build
+#!/bin/bash
+if [ ! -d build ]; then
+  mkdir build
+fi
 cmake -S . -B build -G Ninja
 ninja -C build install
-./build/indicadores
+./build/indicadores "$@"
 ```
-Ejemplo de caclulo
+Modo de uso
 
 ```sh
-indicadores --uf=7.8 
+indicadores --help
 ```
 ```sh
- 1 de Agosto 2025
- -------------------------------
- | UF(7.8)       |     305.556 |
- -------------------------------
- | UF            |   39.173,95 |
- | Dolar         |      976,80 |
- | Euro          |    1.116,22 |
- | Yen           |    150,7367 |
- -------------------------------
- | Oro(onza)     |    3.295,19 |
- | Plata(onza)   |       36,71 |
- | Cobre(Libra)  |        4,38 |
- -------------------------------
+Indicadores Chile
+
+ Modo de uso:
+
+ -f,--formato FORMATO  : Tipo de formato de salida
+                         table(por defecto),json,txt,none
+ -s,--send URL         : Envia la información a la url
+                         tipo POST(por defecto)
+ -h,--help             : Modo de Uso
+
+```
+
+
+```sh
++------------------------------+
+|    24 de Septiembre 2025     |
++--------------+---------------+
+| UF           |     39.485,65 |
++--------------+---------------+
+| Dolar        |        952,87 |
++--------------+---------------+
+| Euro         |      1.125,39 |
++--------------+---------------+
+| Yen          |      147,6267 |
++--------------+---------------+
+| Oro          |      3.780,37 |
++--------------+---------------+
+| Plata        |         44,27 |
++--------------+---------------+
+| Cobre        |          4,49 |
++--------------+---------------+
 ```
 
 

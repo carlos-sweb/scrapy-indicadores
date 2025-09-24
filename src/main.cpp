@@ -10,7 +10,7 @@ using namespace std;
 #include <fstream>
 #include "helper.hpp"
 using namespace std;
-#include <argh.h>
+#include "argh.h"
 using namespace argh;
 namespace fs = filesystem;
 #include <fmt/base.h>
@@ -43,7 +43,7 @@ int main(int, char * argv[]){
 	parser cmdl(argv);
 	string formato = "",url = "";
 	
-	const string formato_aceptados[4] = {"table","json","txt"};
+	const string formato_aceptados[4] = {"table","json","txt","none"};
 	bool formato_aceptado;
 
 	if(cmdl[{"-h","--help"}]){		
@@ -53,7 +53,7 @@ int main(int, char * argv[]){
 			" Modo de uso:\n"
 			"\n"			
 			" -f,--formato FORMATO  : Tipo de formato de salida\n"
-			"                         table(por defecto),json,txt\n"
+			"                         table(por defecto),json,txt,none\n"
 			" -s,--send URL         : Envia la información a la url\n"
 			"                         tipo POST(por defecto)\n"
 			" -h,--help             : Modo de Uso\n"
@@ -64,19 +64,7 @@ int main(int, char * argv[]){
 		return 0;
 	}
 
-	cmdl({"-f","--formato"},"table") >> formato;
-	cmdl({"-s","--send"},"") >> url;
-	
-	
-	auto ada_url = ada::parse(url); 	
-	if(!ada_url && url != ""){
-		fmt::print(
-		"\n \033[31mError\033[00m: La URL '\033[33m{0}\033[00m' no es válida\n\n",
-		url
-		);
-	}
-	
-
+	cmdl({"-f","--formato"},"table") >> formato;		
 
 	formato_aceptado = find(begin(formato_aceptados),end(formato_aceptados),formato) != end(formato_aceptados);
 		
@@ -113,9 +101,6 @@ int main(int, char * argv[]){
 
 	const string s_separate = " -------------------------------\n";
 	
-
-	
-
 	if(cmdl({"uf"})){
 		v_uf.s_vl = cmdl({"uf" }).str();
 		if(cmdl("uf",1.0f) >> v_uf.f_vl){
@@ -161,7 +146,7 @@ int main(int, char * argv[]){
 	for(const auto &indicador : target_indicadores){
 		const string result = ById(indicador.second,document,body);
 		if(result != "ND") target_value.push_back({indicador.first,result});
-	}
+	}	
 	// free document
 	if(document != NULL){lxb_html_document_destroy(document);}
 
@@ -191,6 +176,43 @@ int main(int, char * argv[]){
 			fmt::print("{0}:{1}\n",to_lowercase(name),cleanValue(value));
 		}
 	}		
+
+
+	// SECTION DE ENVIO DE DATOS
+	cmdl({"-s","--send"},"") >> url;			
+	auto ada_url = ada::parse(url); 	
+	if(!ada_url ){
+		if(url != ""){
+			fmt::print(
+		"\n \033[31mError\033[00m: La URL '\033[33m{0}\033[00m' no es válida\n\n",
+		url
+		);
+		}		
+	}else{		
+		string body_json  = "{";		
+		const int target_value_size = target_value.size();
+		for(int i = 0; i < target_value_size; ++i ){
+			const auto &name = target_value.at(i).first;
+			const auto value = cleanValue(target_value.at(i).second);
+			body_json += fmt::format("\"{}\":{}{}",to_lowercase(name),value,(i != (target_value_size-1) ? ",":""));
+		}
+		body_json +="}";
+
+		//fmt::print("{}\n",body_json);
+
+		cpr::Response r = cpr::Post(
+			cpr::Url{ada_url->get_href()},
+			cpr::Body{body_json.c_str()},
+			cpr::Header{{"Content-Type","application/json"}}
+		);
+		switch( r.status_code ){
+			case  0:
+				fmt::print("\033[31mError\033[00m : No se pudo enviar la información a la Url -> \033[33m{}\033[00m\n",ada_url->get_href());
+			break;			
+		}		
+	}
+	// SECTION DE ENVIO DE DATOS
+
 	
     return 0;
 }
