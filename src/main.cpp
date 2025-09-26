@@ -20,19 +20,20 @@ namespace fs = filesystem;
 #include <ada.h>
 
 
-// Convertir a minúsculas
-string to_lowercase(const string& str) {
+const string to_lowercase(const string& str) {
     string result = str;
-    transform(result.begin(), result.end(), result.begin(),
-        [](unsigned char c) { return tolower(c); });
+    transform(result.begin(),
+    result.end(),
+    result.begin(),
+	[](unsigned char c) { return tolower(c); });
     return result;
 }
 
 // Convertir a mayúsculas
-string to_uppercase(const string& str) {
+const string to_uppercase(const string& str) {
     string result = str;
     transform(result.begin(), result.end(), result.begin(),
-        [](unsigned char c) { return toupper(c); });
+	[](unsigned char c) { return toupper(c); });
     return result;
 }
 
@@ -41,10 +42,11 @@ int main(int, char * argv[]){
 
 	
 	parser cmdl(argv);
-	string formato = "",url = "";
-	
+	string formato = "",
+	url = "";	
 	const string formato_aceptados[4] = {"table","json","txt","none"};
-	bool formato_aceptado;
+	bool formato_aceptado , cache = true;
+
 
 	if(cmdl[{"-h","--help"}]){		
 		fmt:print(
@@ -56,6 +58,8 @@ int main(int, char * argv[]){
 			"                         table(por defecto),json,txt,none\n"
 			" -s,--send URL         : Envia la información a la url\n"
 			"                         tipo POST(por defecto)\n"
+			" -nc,--no-cache         : Fuerza la descarga\n"
+			"                         por defecto es TRUE\n"
 			" -h,--help             : Modo de Uso\n"
 			"\n",
 			"Indicadores Chile"			
@@ -64,7 +68,9 @@ int main(int, char * argv[]){
 		return 0;
 	}
 
-	cmdl({"-f","--formato"},"table") >> formato;		
+	cmdl({"-f","--formato"},"table") >> formato;	
+
+	if(cmdl[{"-nc","--no-cache"}]){ cache = false; }	
 
 	formato_aceptado = find(begin(formato_aceptados),end(formato_aceptados),formato) != end(formato_aceptados);
 		
@@ -81,7 +87,7 @@ int main(int, char * argv[]){
 
 	time_t t = time(nullptr);
     tm* now = localtime(&t);
-    const string html= loadContentBCentral(),
+    const string html= loadContentBCentral(cache),
     string_today_date = fmt::format(
 		"{} de {} {}",
 		now->tm_mday,
@@ -211,8 +217,6 @@ int main(int, char * argv[]){
 			break;			
 		}		
 	}
-	// SECTION DE ENVIO DE DATOS
-
-	
+	// SECTION DE ENVIO DE DATOS	
     return 0;
 }

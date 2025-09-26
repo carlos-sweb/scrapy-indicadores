@@ -116,8 +116,7 @@ const string getText(lxb_dom_element_t *element){
     return text_full;
 }
 
-const string loadContentBCentral(){	
-
+const string loadContentBCentral(bool cache){
 	time_t t = time(nullptr);
     tm* now = localtime(&t);
     string html="";
@@ -131,11 +130,12 @@ const string loadContentBCentral(){
         	// En este punto no se pudo crear
         }
     }
-    fs::path cache_today = homeScrapyCache / cache_filename;
 
-    if(!fs::exists(cache_today)){
-    	//std::cout << "No existe el archivo \n";
-		std::ofstream salida(cache_today);
+    fs::path cache_today = homeScrapyCache / cache_filename;
+    
+    if(!fs::exists(cache_today) || cache == false ){    	
+    	//std::cout << "No existe el archivo \n"; OR cache es falso
+		std::ofstream salida(cache_today,std::ios::out | std::ios::trunc);
 		if (!salida) {
 			//std::cerr << "No se pudo crear el archivo.\n";
 			//return 1;
@@ -143,10 +143,10 @@ const string loadContentBCentral(){
 		auto response = Get(Url{URl_BCENTRAL});    
 		html = response.status_code == 200 ? response.text : "";
 		// Podemos procesar en caso de error
+		// Falta Trabajo
 		salida << html;		
 		salida.close();
-    }else{
-    	
+    }else{    	
     	std::ifstream inFile;
     	inFile.open(cache_today); 
 		if (!inFile.is_open()) {
