@@ -19,6 +19,12 @@ namespace fs = filesystem;
 #include <fmt/ranges.h> 
 #include <ada.h>
 
+const char* meses[12] = {
+	"Enero","Febrero","Marzo", 
+	"Abril", "Mayo", "Junio",
+	"Julio","Agosto","Septiembre",
+	"Octubre","Noviembre","Diciembre"
+};
 
 const string to_lowercase(const string& str) {
     string result = str;
@@ -58,14 +64,13 @@ int main(int, char * argv[]){
 			"                         table(por defecto),json,txt,none\n"
 			" -s,--send URL         : Envia la información a la url\n"
 			"                         tipo POST(por defecto)\n"
-			" -nc,--no-cache         : Fuerza la descarga\n"
-			"                         por defecto es TRUE\n"
+			" -nc,--no-cache        : Remueve el sistema de cache\n"
 			" -h,--help             : Modo de Uso\n"
 			"\n",
-			"Indicadores Chile"			
-			);
-		
-		return 0;
+			"Indicadores Chile"
+		);
+
+		return 0;		
 	}
 
 	cmdl({"-f","--formato"},"table") >> formato;	
@@ -211,6 +216,7 @@ int main(int, char * argv[]){
 			cpr::Body{body_json.c_str()},
 			cpr::Header{{"Content-Type","application/json"}}
 		);
+
 		switch( r.status_code ){
 			case  0:
 				fmt::print("\033[31mError\033[00m : No se pudo enviar la información a la Url -> \033[33m{}\033[00m\n",ada_url->get_href());

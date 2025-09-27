@@ -16,18 +16,6 @@ using namespace fmt;
 using namespace std;
 using namespace cpr;
 
-const char* meses[] = {
-	"Enero","Febrero","Marzo", 
-	"Abril", "Mayo", "Junio",
-	"Julio","Agosto","Septiembre",
-	"Octubre","Noviembre","Diciembre"
-};
-
-
-void showJsonValue(const string &uf,const string &dolar,const string &euro,const string &yen,const string &golden , const string &silver , const string &copper){
-	print("{{\n \033[32m\"uf\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"dolar\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"euro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"yen\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"oro\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"plata\"\033[00m : \033[33m\"{}\"\033[00m\n \033[32m\"cobre\"\033[00m : \033[33m\"{}\"\033[00m\n}}\n",uf,dolar,euro,yen,golden,silver,copper);
-}
-
 /**
  * @cleanValue
  * */
@@ -50,50 +38,7 @@ const string cleanValue(const string &valueUF){
 	return output;		
 }
 
-const string int_CLP(const int &cal){
-	string output="";
-	const string body = to_string(cal);
-	int position_separate=0;
-	for(int i = (body.size()-1); i >= 0; i--){		
-		if(position_separate == 3){
-			output.insert(0,".");
-			position_separate=1;
-		}else{
-			position_separate++;
-		}
-		output.insert(0,string(1,body.at(i)));
-	}
-	return output;
-}
 
-const string blockBase(
-	const string &color,
-	const string &text,
-	int rows,
-	int text_indent=1
-	){	
-	string output = "|";
-	while(text_indent > 0){		
-		output.append(" ");
-		text_indent--;
-	}
-	output+=color;
-	output+=text;
-	output+="\033[00m";
-
-	rows = (rows - text.length());
-	while(rows > 0){
-		output.append(" ");
-		rows--;
-	}	
-	return output;
-}
-const string blockLeftGreen(const string &text,int rows ,int text_indent=1){	
- 	return blockBase("\033[32m",text,rows,text_indent);
-}
-const string blockLeftYellow(string text,int rows ,int text_indent=1){	
- 	return blockBase("\033[33m",text,rows,text_indent);
-}
 
 /**
  * @name getText
@@ -130,7 +75,7 @@ const string loadContentBCentral(bool cache){
         	// En este punto no se pudo crear
         }
     }
-
+    
     fs::path cache_today = homeScrapyCache / cache_filename;
     
     if(!fs::exists(cache_today) || cache == false ){    	
