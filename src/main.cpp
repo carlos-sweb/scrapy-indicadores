@@ -8,6 +8,7 @@ using namespace std;
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include "scrapycpp.hpp"
 #include "helper.hpp"
 using namespace std;
 #include "argh.h"
@@ -19,33 +20,11 @@ namespace fs = filesystem;
 #include <fmt/ranges.h> 
 #include <ada.h>
 
-const char* meses[12] = {
-	"Enero","Febrero","Marzo", 
-	"Abril", "Mayo", "Junio",
-	"Julio","Agosto","Septiembre",
-	"Octubre","Noviembre","Diciembre"
-};
 
-const string to_lowercase(const string& str) {
-    string result = str;
-    transform(result.begin(),
-    result.end(),
-    result.begin(),
-	[](unsigned char c) { return tolower(c); });
-    return result;
-}
 
-// Convertir a mayúsculas
-const string to_uppercase(const string& str) {
-    string result = str;
-    transform(result.begin(), result.end(), result.begin(),
-	[](unsigned char c) { return toupper(c); });
-    return result;
-}
 
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int, char * argv[]){
-
 	
 	parser cmdl(argv);
 	string formato = "",
@@ -55,7 +34,8 @@ int main(int, char * argv[]){
 
 
 	if(cmdl[{"-h","--help"}]){		
-		fmt:print(
+		
+			fmt:print(
 			"\n"
 			" {0}\n\n"
 			" Modo de uso:\n"
@@ -90,17 +70,7 @@ int main(int, char * argv[]){
 		return 0;
 	}
 
-	time_t t = time(nullptr);
-    tm* now = localtime(&t);
-    const string html= loadContentBCentral(cache),
-    string_today_date = fmt::format(
-		"{} de {} {}",
-		now->tm_mday,
-		meses[now->tm_mon],
-		(now->tm_year+1900)
-	);
-
-	
+   
 	bool json_f = false;
 	const int row_green = 14,
 	row_yellow = 12;
@@ -109,15 +79,13 @@ int main(int, char * argv[]){
 		v_uf{.exists=false},
 		v_dolar{.exists=false},
 		v_euro{.exists=false};
-
 	const string s_separate = " -------------------------------\n";
-	
 	if(cmdl({"uf"})){
 		v_uf.s_vl = cmdl({"uf" }).str();
 		if(cmdl("uf",1.0f) >> v_uf.f_vl){
 			v_uf.exists = true;
 		}
-	}		
+	}
 	if(cmdl({"dolar"})){
 		v_dolar.s_vl=cmdl({"dolar" }).str();
 		if(cmdl("dolar",1.0f)>>v_dolar.f_vl){
@@ -130,63 +98,15 @@ int main(int, char * argv[]){
 			v_euro.exists = true;
 		}
 	}
-	
 
-	size_t size;
-	lxb_status_t status;        	 
-	lxb_html_document_t  * document;
-	lxb_dom_element_t    * body;		
-    document=lxb_html_document_create();
-	status=lxb_html_document_parse(document,(const lxb_char_t *)html.c_str(),html.length());
-	if(status!=LXB_STATUS_OK){exit(EXIT_FAILURE);}
-	body = lxb_dom_interface_element(document->body);
-	
-	//Tratando de mejorar el codigo
-
-	const vector<pair<string,string>> target_indicadores = {
-		{"UF","lblValor1_1"},
-		{"Dolar","lblValor1_3"},
-		{"Euro","lblValor1_5"},
-		{"Yen","lblValor1_10"},
-		{"Oro","lblValor2_3"},
-		{"Plata","lblValor2_4"},
-		{"Cobre","lblValor2_5"}
-	};
-	vector<pair<string,string>> target_value = {};
-
-	for(const auto &indicador : target_indicadores){
-		const string result = ById(indicador.second,document,body);
-		if(result != "ND") target_value.push_back({indicador.first,result});
-	}	
-	// free document
-	if(document != NULL){lxb_html_document_destroy(document);}
-
-	
-	if(formato == "table"){	
-		int rows = 30;
-		fmt::print(
-			"+{0:-^{1}}+\n"
-			"|\033[32m{2: ^{1}}\033[00m|\n"
-			"+{3:-^{1}}+\n",
-			"",rows,string_today_date,"+");
-
-		for(const auto &[name,value] : target_value ){			
-			fmt::print("| \033[32m{1:<{0}}\033[00m| \033[33m{2:>{0}}\033[00m |\n",((rows/2)-2),name,value);
-			fmt::print("+{0:-^{1}}+\n","+",rows);
-		}		
+	const string html= loadContentBCentral(cache);	
+	ScrapyCpp::HtmlDom *parse = new ScrapyCpp::HtmlDom(html,formato);	
+	parse->start();
+	parse->show();
 		
+	
 
-	}else if(formato == "json"){		
-		fmt::print("{{\n");
-		for(const auto &[name,value] : target_value ){			 
-			 fmt::print(" \"{0}\":{1}\n",to_lowercase(name),cleanValue(value));
-		}
-		fmt::print("}}\n");
-	}else if(formato == "txt"){		
-		for(const auto &[name,value] : target_value ){	
-			fmt::print("{0}:{1}\n",to_lowercase(name),cleanValue(value));
-		}
-	}		
+	
 
 
 	// SECTION DE ENVIO DE DATOS
@@ -201,11 +121,11 @@ int main(int, char * argv[]){
 		}		
 	}else{		
 		string body_json  = "{";		
-		const int target_value_size = target_value.size();
+		const int target_value_size = parse->target_value.size();
 		for(int i = 0; i < target_value_size; ++i ){
-			const auto &name = target_value.at(i).first;
-			const auto value = cleanValue(target_value.at(i).second);
-			body_json += fmt::format("\"{}\":{}{}",to_lowercase(name),value,(i != (target_value_size-1) ? ",":""));
+			const auto &name = parse->target_value.at(i).first;
+			const auto value = ScrapyCpp::cleanValue(parse->target_value.at(i).second);
+			body_json += fmt::format("\"{}\":{}{}",ScrapyCpp::to_lowercase(name),value,(i != (target_value_size-1) ? ",":""));
 		}
 		body_json +="}";
 

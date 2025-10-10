@@ -1,83 +1,39 @@
 #ifndef INDICADORES_HELPER_H
 #define INDICADORES_HELPER_H
 #define URl_BCENTRAL "https://si3.bcentral.cl//Indicadoressiete/secure/Indicadoresdiarios.aspx"
+#define URL_SII_UTM_UTA "https://www.sii.cl/valores_y_fechas/utm/utm{}.htm"
 #include <string>
 #include <cpr/cpr.h>
 #include <fmt/base.h>
 #include <fmt/chrono.h>
-#include <lexbor/html/html.h>
-#include <lexbor/html/parser.h>
-#include <lexbor/dom/interfaces/element.h>
 #include <filesystem>
 #include <fstream>
 namespace fs = filesystem;
 
 using namespace fmt;
 using namespace std;
-using namespace cpr;
 
-/**
- * @cleanValue
- * */
-const string cleanValue(const string &valueUF){
-	// en caso que el valor capturado de la pagina web
-	// del banco central retorne ND
-	// Esto ocurre cuando no hay valor , fines de semana y feriados
-	if(valueUF == "ND")
-		return "0.0";
-	// En este punto , obtenemos una reprecentación de un numero 
-	// Que luego en formato no sirve para hacer calculos matematicos, 
-	// ya que los separadores de miles son puntos y los decimales son comas
-	// lo cual no sirve para hacer calculos matematicos con c++ y el compilador
-	// Ejemplo : UF 39.485,65 , lo que me sirve es 39485.65 ( numero flotante)
-	string output="";
-	for(int i = (valueUF.length()-1);i>=0;i--){
-		const string val = string(1,valueUF.at(i));
-		if(val!="."){output.insert(0, val == "," ? "." : val );}
-	}
-	return output;		
-}
-
-
-
-/**
- * @name getText
- * @description Obtenemos el contenido de texto 
- * proveniende desde un id de un elemento <span id="idtarget">Text...</span>
- * */
-
-const string getText(lxb_dom_element_t *element){
-    string text_full = "";
-    lxb_dom_node_t * node = (lxb_dom_node_t * ) element;
-    lxb_dom_node_t * current_node = lxb_dom_node_first_child( node );
-    while( current_node != NULL){
-        if( current_node->type == LXB_DOM_NODE_TYPE_TEXT ){
-            size_t len;
-            const lxb_char_t *text = lxb_dom_node_text_content(current_node,&len);
-            text_full.append( (const char *) text );
-        }
-        current_node = lxb_dom_node_next(current_node);
-    }
-    return text_full;
-}
 
 const string loadContentBCentral(bool cache){
 	time_t t = time(nullptr);
-    tm* now = localtime(&t);
-    string html="";
-    const string cache_filename = fmt::format(
-	"{}-{}-{}.html",now->tm_mday,now->tm_mon,(now->tm_year+1900));
-	fs::path homeScrapy = INSTALL_BIN_DIR;
-	fs::path homeScrapyCache = homeScrapy / ".scrapy-indicadores"; 
+    tm* now = localtime(&t);    
 
+    const string year_str = to_string((now->tm_year+1900)),
+	month_str = to_string(now->tm_mon),
+    day_str = to_string(now->tm_mday) ,     
+    cache_filename = fmt::format("{}-{}-{}.html",day_str,month_str,year_str);
+
+	fs::path homeScrapy = INSTALL_BIN_DIR , 
+	homeScrapyCache = homeScrapy / ".scrapy-indicadores" , 
+	cache_today = homeScrapyCache / cache_filename;
+
+	// ------------------------------------------
 	if (!fs::exists(homeScrapyCache) && !fs::is_directory(homeScrapyCache)) {        
         if(fs::create_directories(homeScrapyCache)){
         	// En este punto no se pudo crear
         }
     }
-    
-    fs::path cache_today = homeScrapyCache / cache_filename;
-    
+    // ------------------------------------------
     if(!fs::exists(cache_today) || cache == false ){    	
     	//std::cout << "No existe el archivo \n"; OR cache es falso
 		std::ofstream salida(cache_today,std::ios::out | std::ios::trunc);
@@ -85,13 +41,15 @@ const string loadContentBCentral(bool cache){
 			//std::cerr << "No se pudo crear el archivo.\n";
 			//return 1;
 		}
-		auto response = Get(Url{URl_BCENTRAL});    
-		html = response.status_code == 200 ? response.text : "";
+		auto response = cpr::Get(cpr::Url{URl_BCENTRAL});
+		const string html = response.status_code == 200 ? response.text : "";
 		// Podemos procesar en caso de error
 		// Falta Trabajo
 		salida << html;		
 		salida.close();
-    }else{    	
+		return html;
+    }else{
+    	string html = "";
     	std::ifstream inFile;
     	inFile.open(cache_today); 
 		if (!inFile.is_open()) {
@@ -103,33 +61,13 @@ const string loadContentBCentral(bool cache){
 			html.append(line);
 		}		
 		inFile.close();
+		return html;
     }
-    return html;
+    
 }
 
-string ById(string value, lxb_html_document_t * document , lxb_dom_element_t * body){
-	
-	lxb_status_t status;
-	lxb_dom_element_t    * element;
-	lxb_dom_collection_t * collection;
-	collection = lxb_dom_collection_make(&document->dom_document,128);
-	string name = "id";	
-	status = lxb_dom_elements_by_attr(body,collection,
-	                          ( const lxb_char_t *) name.c_str(),name.length(),
-	                          ( const lxb_char_t *) value.c_str(),value.length(),true);
-			
-	if (status != LXB_STATUS_OK || lxb_dom_collection_length(collection) == 0 ) {
-		cout << "Error\n";
-		exit(EXIT_FAILURE);
-	}else{
 
-		element = lxb_dom_collection_element(collection,0);
-		string text =  getText(element);
-		lxb_dom_element_destroy(element);
-		lxb_dom_collection_destroy(collection,true);				
-	}
-	return getText(element);
-}
+
 
 typedef struct{
 	float f_vl;
