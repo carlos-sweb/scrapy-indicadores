@@ -1,24 +1,50 @@
 #ifndef SCRAPYCPP_H
 #define SCRAPYCPP_H
 
+#include <filesystem>
+#include <fstream>
+#include <filesystem>
+#include <ctime>
+#include <iomanip>
+#include <cstdint>
+#include <fstream>
+
+#include <ada.h>
+#include <cpr/cpr.h>
 #include <fmt/base.h>
 #include <fmt/chrono.h>
 #include <fmt/format.h>
-#include <fmt/ranges.h> 
-
+#include <fmt/ranges.h>
 #include <lexbor/html/html.h>
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
 
-
-using namespace std;
-
 namespace ScrapyCpp{
 
+namespace fs = std::filesystem;
 
+using namespace std;
+using namespace fmt;
+
+const char *url_central = "https://si3.bcentral.cl/Indicadoressiete/secure/Indicadoresdiarios.aspx";
+const char *url_sii_utm_uta = "https://www.sii.cl/valores_y_fechas/utm/utm{}.htm";
+	
 
 void showHelp(){
-
+	fmt:print(
+		"\n"
+		" {0}\n\n"
+		" Modo de uso:\n"
+		"\n"			
+		" -f,--formato FORMATO  : Tipo de formato de salida\n"
+		"                         table(por defecto),json,txt,none\n"
+		" -s,--send URL         : Envia la información a la url\n"
+		"                         tipo POST(por defecto)\n"
+		" -nc,--no-cache        : Remueve el sistema de cache\n"
+		" -h,--help             : Modo de Uso\n"
+		"\n",
+		"Indicadores Chile"
+	);
 }
 
 const char* meses[12] = {
@@ -68,11 +94,8 @@ const string cleanValue(const string &value){
 }
 
 const string getDateText(){
-
-
 	time_t t = time(nullptr);
-    tm* now = localtime(&t);
-    
+    tm* now = localtime(&t);    
     return fmt::format(
 		"{} de {} {}",
 		now->tm_mday,
@@ -82,8 +105,14 @@ const string getDateText(){
 }
 
 struct HtmlDom {
-	const string formato;
+    const string formato_aceptados[4] = {"table","json","txt","none"};	
+
+	bool cache = true;
+
+	string formato;
+
 	vector<pair<string,string>> target_value = {};
+
 	const vector<pair<string,string>> target_indicadores = {
 	{"UF","lblValor1_1"},
 	{"Dolar","lblValor1_3"},
@@ -98,6 +127,11 @@ struct HtmlDom {
 	lxb_html_document_t  * document;
 	lxb_dom_element_t    * body;
 
+
+
+	bool isFormatAccept(){
+		return std::find(std::begin(formato_aceptados),std::end(formato_aceptados),formato) != std::end(formato_aceptados);
+	}
 
 	const string ById( const string &value){
 	lxb_status_t status;
@@ -140,15 +174,27 @@ struct HtmlDom {
 			if(result != "ND") target_value.push_back({indicador.first,result});
 		}	
 	}
-	HtmlDom(const string &html,const string &formato):formato(formato){
+	HtmlDom(const string &formato , const bool &cache):formato(formato),cache(cache){	
+
+		if(!isFormatAccept()){
+			fmt::print(
+				"\n \033[31mError\033[00m: El formato '\033[33m{0}\033[00m' no es válido\n"
+				" * table (por defecto)\n"
+				" * json\n"
+				" * txt\n\n",
+				formato
+				);
+			std::exit(EXIT_FAILURE);
+		}
+		const string html = loadContentBCentral();
 		document=lxb_html_document_create();
 		status=lxb_html_document_parse(document,(const lxb_char_t *)html.c_str(),html.length());
 		if(status!=LXB_STATUS_OK){exit(EXIT_FAILURE);}
 		body = lxb_dom_interface_element(document->body);
+		start();
 	}
 	~HtmlDom(){
-		if(document != NULL){lxb_html_document_destroy(document);}
-		fmt::print("{}\n","Deleted");
+		if(document != NULL){lxb_html_document_destroy(document);}		
 	}
 	void showTxtFormat(){
 		for(const auto &[name,value] : target_value ){	
@@ -175,20 +221,104 @@ struct HtmlDom {
 			fmt::print("+{0:-^{1}}+\n","+",rows);
 		}		
 	}
-	void show(){
+	void show(){		
 		if(formato == "table"){			
 			showTableFormat();
 		}else if(formato == "json"){		
 			showJsonFormat();
 		}else if(formato == "txt"){	
 			showTxtFormat();		
+		}
+	}
+	void send(const string &url){
+	auto ada_url = ada::parse(url); 	
+	if(!ada_url ){
+		if(url != ""){
+			fmt::print(
+		"\n \033[31mError\033[00m: La URL '\033[33m{0}\033[00m' no es válida\n\n",
+		url
+		);
+		}		
+	}else{		
+		string body_json  = "{";		
+		const unsigned int target_value_size = target_value.size();
+		for(int unsigned i = 0; i < target_value_size; ++i ){
+			const auto &name = target_value.at(i).first;
+			const auto value = cleanValue(target_value.at(i).second);
+			body_json += fmt::format("\"{}\":{}{}",to_lowercase(name),value,(i != (target_value_size-1) ? ",":""));
+		}
+		body_json +="}";
+
+		cpr::Response r = cpr::Post(
+			cpr::Url{ada_url->get_href()},
+			cpr::Body{body_json.c_str()},
+			cpr::Header{{"Content-Type","application/json"}}
+		);
+
+		switch( r.status_code ){
+			case  0:
+				fmt::print("\033[31mError\033[00m : No se pudo enviar la información a la Url -> \033[33m{}\033[00m\n",ada_url->get_href());
+			break;			
 		}		
 	}
+	}
+	//--------
+	const string loadContentBCentral(){
+
+		time_t t = time(nullptr);
+		tm* now = localtime(&t);    
+
+		const string year_str = to_string((now->tm_year+1900)),
+		month_str = to_string(now->tm_mon),
+		day_str = to_string(now->tm_mday) ,     
+		cache_filename = fmt::format("{}-{}-{}.html",day_str,month_str,year_str);
+
+		fs::path homeScrapy = INSTALL_BIN_DIR , 
+		homeScrapyCache = homeScrapy / ".scrapy-indicadores" , 
+		cache_today = homeScrapyCache / cache_filename;
+
+		// ------------------------------------------
+		if (!fs::exists(homeScrapyCache) && !fs::is_directory(homeScrapyCache)) {        
+		    if(fs::create_directories(homeScrapyCache)){
+		    	// En este punto no se pudo crear
+		    }
+		}
+		// ------------------------------------------
+		if(!fs::exists(cache_today) || cache == false ){
+			auto response = cpr::Get(cpr::Url{ url_central });
+			const string html = response.status_code == 200 ? response.text : "";		
+			if(!html.empty()){
+		    	//std::cout << "No existe el archivo \n"; OR cache es falso
+				std::ofstream salida(cache_today,std::ios::out | std::ios::trunc);
+				if (!salida) {
+					std::cerr << "No se pudo crear el archivo.\n";
+					//return 1;
+				}		
+				// Podemos procesar en caso de error
+				// Falta Trabajo
+				salida << html;		
+				salida.close();
+			}
+			return html;
+		}else{
+			string html = "";
+			std::ifstream inFile;
+			inFile.open(cache_today); 
+			if (!inFile.is_open()) {
+				std::cerr << "Error opening file!" << std::endl;
+				//return 1; // Indicate an error
+			}
+			string line;
+			while(std::getline(inFile,line)){			
+				html.append(line);
+			}		
+			inFile.close();		
+			return html;
+		}    
+	}
+	//--------
+
 };
 
-
-
 }
-
-
 #endif // SCRAPYCPP_H
