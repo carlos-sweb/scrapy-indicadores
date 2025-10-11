@@ -26,10 +26,11 @@ if(IS_TERMUX)
     set(CPR_LIBRARY "$ENV{HOME}/cpr/build/lib/libcpr.a")
     set(LEXBOR_STATIC "$ENV{HOME}/lexbor/build/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "$ENV{HOME}/lexbor/source")
-    set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")
-    set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")    
+    set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")    
     set(ADA_INCLUDE_DIR "$ENV{HOME}/ada/include" )
     set(ADA_STATIC "$ENV{HOME}/ada/build/src/libada.a")
+    
+    set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")    
 else()
     # Rutas para Linux estándar
     set(CPR_INCLUDE_DIR "/usr/local/include/cpr")
@@ -40,6 +41,7 @@ else()
     
     set(ADA_INCLUDE_DIR "/usr/local/include" )
     set(ADA_STATIC "/usr/local/lib64/libada.a")
+
     set(INSTALL_BIN_DIR "/opt/${PROJECT_NAME}/bin" CACHE PATH "Binary install directory for Linux")   
 endif()
 
@@ -48,14 +50,15 @@ add_compile_definitions(INSTALL_BIN_DIR="${INSTALL_BIN_DIR}")
 add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE     
+    
     curl 
-    ssl 
-    crypto 
-    z 
+    crypto
+    ssl
+    
     ${FMT_STATIC}
     ${LEXBOR_STATIC} 
     ${CPR_LIBRARY}
-    ${ADA_STATIC}
+    ${ADA_STATIC}    
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
