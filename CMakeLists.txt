@@ -47,7 +47,7 @@ endif()
 
 add_compile_definitions(INSTALL_BIN_DIR="${INSTALL_BIN_DIR}")
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/scrapycpp.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE     
     

@@ -1,5 +1,6 @@
 #include "scrapycpp.hpp"
 #include "argh.h"
+#include <memory>
 using namespace argh;
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int, char * argv[]){	
