@@ -21,20 +21,31 @@
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
 
-
 namespace ScrapyCpp{
 
 using namespace std;
 namespace fs = std::filesystem;	
 
-extern const char *url_central; 
-extern const char *url_sii_utm_uta;
-extern const char* meses[12];
-extern const string formato_aceptados[4];
-extern const vector<pair<string,string>> target_indicadores;
+static constexpr const char *url_central = "https://si3.bcentral.cl/Indicadoressiete/secure/Indicadoresdiarios.aspx";
+static constexpr const char *url_sii_utm_uta = "https://www.sii.cl/valores_y_fechas/utm/utm{}.htm";
+static constexpr const char* meses[12] = {
+	"Enero","Febrero","Marzo", 
+	"Abril", "Mayo", "Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"};
+static constexpr const unsigned int formato_aceptados_len = 4;
+static constexpr const string formato_aceptados[formato_aceptados_len] = {"table","json","txt","none"};
+
+const vector<pair<string,string>> target_indicadores = {
+	{"UF","lblValor1_1"},
+	{"Dolar","lblValor1_3"},
+	{"Euro","lblValor1_5"},
+	{"Yen","lblValor1_10"},
+	{"Oro","lblValor2_3"},
+	{"Plata","lblValor2_4"},
+	{"Cobre","lblValor2_5"}
+};
 
 void showHelp();
-	
+
 const string to_lowercase(const string& str);
 // Convertir a mayúsculas
 const string to_uppercase(const string& str);

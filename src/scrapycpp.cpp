@@ -2,25 +2,6 @@
 
 namespace ScrapyCpp{
 
-const char *url_central = "https://si3.bcentral.cl/Indicadoressiete/secure/Indicadoresdiarios.aspx";
-const char *url_sii_utm_uta = "https://www.sii.cl/valores_y_fechas/utm/utm{}.htm";
-const char* meses[12] = {
-	"Enero","Febrero","Marzo", 
-	"Abril", "Mayo", "Junio",
-	"Julio","Agosto","Septiembre",
-	"Octubre","Noviembre","Diciembre"
-};
-
-const string formato_aceptados[4] = {"table","json","txt","none"};
-const vector<pair<string,string>> target_indicadores = {
-	{"UF","lblValor1_1"},
-	{"Dolar","lblValor1_3"},
-	{"Euro","lblValor1_5"},
-	{"Yen","lblValor1_10"},
-	{"Oro","lblValor2_3"},
-	{"Plata","lblValor2_4"},
-	{"Cobre","lblValor2_5"}
-};
 
 void showHelp(){
 	fmt::print(
@@ -89,8 +70,13 @@ const string getDateText(){
 	);
 }
 
-	bool HtmlDom::isFormatAccept(){		
-		return std::find(std::begin(formato_aceptados),std::end(formato_aceptados),formato) != std::end(formato_aceptados);
+	bool HtmlDom::isFormatAccept(){
+		size_t i = 0;
+		while( i < formato_aceptados_len ){
+			if( formato_aceptados[i] == formato) return true;
+			++i;
+		}		
+		return false;
 	}
 
 	const string HtmlDom::ById( const string &value){
