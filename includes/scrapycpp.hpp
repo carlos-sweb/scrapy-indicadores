@@ -7,10 +7,7 @@
 
 #include <ada.h>
 #include <cpr/cpr.h>
-#include <fmt/base.h>
-#include <fmt/chrono.h>
-#include <fmt/format.h>
-#include <fmt/ranges.h>
+
 #include <lexbor/html/html.h>
 #include <lexbor/html/parser.h>
 #include <lexbor/dom/interfaces/element.h>
@@ -48,7 +45,7 @@ inline const string to_uppercase(const string& str);
  * */
 inline const string cleanValue(const string &value);
 
-inline const string getDateText();
+inline const char* getDateText();
 
 struct HtmlDom {    
 

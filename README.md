@@ -51,7 +51,7 @@ Mi objetivo era crear una solución ligera pero potente para acceder a informaci
   - [CURL](https://curl.se/)
   - [CPR](https://github.com/libcpr/cpr)
   - [LEXBOR](https://lexbor.com/)
-  - [FMT](https://fmt.dev/11.1/)
+  - [C_PRINT](https://github.com/carlos-sweb/c_print)
   - [Arg.h](https://github.com/adishavit/argh)
 
 ---

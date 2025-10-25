@@ -89,16 +89,17 @@ inline const string cleanValue(const string &value){
 	return output;		
 }
 
-inline const string getDateText(){
-	time_t t = time(nullptr);
-    tm* now = localtime(&t);    
-    return fmt::format(
-		"{} de {} {}",
-		now->tm_mday,
-		meses[now->tm_mon],
-		(now->tm_year+1900)
-	);
-}
+
+	inline const char* getDateText() {
+	    time_t t = time(NULL);
+	    struct tm* now = localtime(&t);	    
+	    static char buffer[22]; // Buffer estático para retornar	    
+	    snprintf(buffer,sizeof(buffer), "%02d de %s %d", 
+	            now->tm_mday, 
+	            meses[now->tm_mon], 
+	            now->tm_year + 1900);	    
+	    return buffer;
+	}
 
 	bool HtmlDom::isFormatAccept(){
 		size_t i = 0;
@@ -189,7 +190,7 @@ inline const string getDateText(){
 	void HtmlDom::showTableFormat(){
 
 		printf("+------------------------------+\n");
-		c_print("|{s:green:^30}|\n",getDateText().c_str());
+		c_print("|{s:green:^30}|\n",getDateText());
 		printf("+--------------+---------------+\n");
 		for(const auto &[name,value] : target_value ){			
 			c_print(
@@ -225,7 +226,17 @@ inline const string getDateText(){
 		for(int unsigned i = 0; i < target_value_size; ++i ){
 			const auto &name = target_value.at(i).first;
 			const auto value = cleanValue(target_value.at(i).second);
-			body_json += fmt::format("\"{}\":{}{}",to_lowercase(name),value,(i != (target_value_size-1) ? ",":""));
+
+			// Definimos el largo del pattern max
+			int buffer_json_len = name.size() +  value.size() + 8;
+			char buffer_json[ buffer_json_len ];
+
+			snprintf(buffer_json,buffer_json_len,"\"%s\":%s%s", 
+				to_lowercase(name).c_str() ,
+				value.c_str() , 
+				(i != (target_value_size-1) ? ",":"")
+			);
+			body_json += buffer_json;
 		}
 		body_json +="}";
 
@@ -246,12 +257,14 @@ inline const string getDateText(){
 	const string HtmlDom::loadContentBCentral(){
 
 		time_t t = time(nullptr);
-		tm* now = localtime(&t);    
-
-		const string year_str = to_string((now->tm_year+1900)),
-		month_str = to_string(now->tm_mon),
-		day_str = to_string(now->tm_mday) ,     
-		cache_filename = fmt::format("{}-{}-{}.html",day_str,month_str,year_str);
+		tm* now = localtime(&t);
+		char cache_filename[16];
+		snprintf(
+			cache_filename,
+			sizeof(cache_filename),"%02d-%02d-%04d.html",
+			now->tm_mday,now->tm_mon,
+			(now->tm_year+1900)
+			);		
 
 		fs::path homeScrapy = INSTALL_BIN_DIR , 
 		homeScrapyCache = homeScrapy / ".scrapy-indicadores" , 

@@ -26,7 +26,7 @@ if(IS_TERMUX)
     set(CPR_LIBRARY "$ENV{HOME}/cpr/build/lib/libcpr.a")
     set(LEXBOR_STATIC "$ENV{HOME}/lexbor/build/liblexbor_static.a")
     set(LEXBOR_INCLUDE_DIR "$ENV{HOME}/lexbor/source")
-    set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")    
+    
     set(ADA_INCLUDE_DIR "$ENV{HOME}/ada/include" )
     set(ADA_STATIC "$ENV{HOME}/ada/build/src/libada.a")
     set(CPRINT_INCLUDE_DIR "$ENV{HOME}/c_print")
@@ -59,7 +59,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     crypto
     ssl
     
-    ${FMT_STATIC}
+    
     ${LEXBOR_STATIC} 
     ${CPR_LIBRARY}
     ${ADA_STATIC}
