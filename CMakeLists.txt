@@ -29,6 +29,7 @@ if(IS_TERMUX)
     set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")    
     set(ADA_INCLUDE_DIR "$ENV{HOME}/ada/include" )
     set(ADA_STATIC "$ENV{HOME}/ada/build/src/libada.a")
+    set(CPRINT_INCLUDE_DIR "$ENV{HOME}/c_print")
     set(CPRINT_STATIC "$ENV{HOME}/c_print/build/libc_print.a")
     
     set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")    
