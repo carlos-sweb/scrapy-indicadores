@@ -3,13 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <filesystem>
-#include <fstream>
-#include <filesystem>
 #include <ctime>
-#include <iomanip>
-#include <cstdint>
-#include <fstream>
 
 #include <ada.h>
 #include <cpr/cpr.h>
@@ -28,9 +22,7 @@ namespace fs = std::filesystem;
 
 static constexpr const char *url_central = "https://si3.bcentral.cl/Indicadoressiete/secure/Indicadoresdiarios.aspx";
 static constexpr const char *url_sii_utm_uta = "https://www.sii.cl/valores_y_fechas/utm/utm{}.htm";
-static constexpr const char* meses[12] = {
-	"Enero","Febrero","Marzo", 
-	"Abril", "Mayo", "Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"};
+static constexpr const char* meses[12] = {"Enero","Febrero","Marzo", "Abril", "Mayo", "Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"};
 static constexpr const unsigned int formato_aceptados_len = 4;
 static constexpr const string formato_aceptados[formato_aceptados_len] = {"table","json","txt","none"};
 
@@ -45,17 +37,18 @@ const vector<pair<string,string>> target_indicadores = {
 };
 
 void showHelp();
+void showVersion();
 
-const string to_lowercase(const string& str);
+inline const string to_lowercase(const string& str);
 // Convertir a mayúsculas
-const string to_uppercase(const string& str);
+inline const string to_uppercase(const string& str);
 
 /**
  * @cleanValue
  * */
-const string cleanValue(const string &value);
+inline const string cleanValue(const string &value);
 
-const string getDateText();
+inline const string getDateText();
 
 struct HtmlDom {    
 

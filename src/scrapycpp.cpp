@@ -1,26 +1,56 @@
 #include "scrapycpp.hpp"
+#include "c_print.h"
 
 namespace ScrapyCpp{
 
-
-void showHelp(){
-	fmt::print(
-		"\n"
-		" {0}\n\n"
-		" Modo de uso:\n"
-		"\n"			
-		" -f,--formato FORMATO  : Tipo de formato de salida\n"
-		"                         table(por defecto),json,txt,none\n"
-		" -s,--send URL         : Envia la información a la url\n"
-		"                         tipo POST(por defecto)\n"
-		" -nc,--no-cache        : Remueve el sistema de cache\n"
-		" -h,--help             : Modo de Uso\n"
-		"\n",
-		"Indicadores Chile"
-	);
+void showVersion(){
+	c_print(" Version: {s:yellow}\n","0.1.0");
 }
 
-const string to_lowercase(const string& str) {
+void showHelp(){
+	
+	c_print(" {s:green}\n","Indicadores Chile");
+	showVersion();
+	printf("\n Modo de uso:\n");
+
+	c_print(
+			"{s:<24}: {s}\n{s:>26}{s}\n",
+		    " -f,--formato <FORMATO>",
+		    "Tipo de formato de salida",
+		    "",
+		    "table(por defecto),json,txt,none"
+	);
+
+	c_print(
+			"{s:<24}: {s}\n{s:>26}{s}\n",
+		    " -s,--send <URL>",
+		    "Envia la información a la url",
+		    "",
+		    "tipo POST(por defecto)"		    
+	);
+
+	c_print(
+			"{s:<24}: {s}\n",
+		    " -nc,--no-cache",
+		    "Remueve el sistema de cache"
+	);
+
+	c_print(
+			"{s:<24}: {s}\n",
+		    " -h,--help",
+		    "Modo de uso"
+	);
+
+	c_print(
+			"{s:<24}: {s}\n\n",
+		    " -v,--version",
+		    "Muestra la Versión"
+	);
+	
+	
+}
+
+inline const string to_lowercase(const string& str) {
     string result = str;
     transform(result.begin(),
     result.end(),
@@ -30,7 +60,7 @@ const string to_lowercase(const string& str) {
 }
 
 // Convertir a mayúsculas
-const string to_uppercase(const string& str) {
+inline const string to_uppercase(const string& str) {
     string result = str;
     transform(result.begin(), result.end(), result.begin(),
 	[](unsigned char c) { return toupper(c); });
@@ -40,7 +70,7 @@ const string to_uppercase(const string& str) {
 /**
  * @cleanValue
  * */
-const string cleanValue(const string &value){
+inline const string cleanValue(const string &value){
 	// en caso que el valor capturado de la pagina web
 	// del banco central retorne ND
 	// Esto ocurre cuando no hay valor , fines de semana y feriados
@@ -59,7 +89,7 @@ const string cleanValue(const string &value){
 	return output;		
 }
 
-const string getDateText(){
+inline const string getDateText(){
 	time_t t = time(nullptr);
     tm* now = localtime(&t);    
     return fmt::format(
@@ -125,13 +155,10 @@ const string getDateText(){
 	HtmlDom::HtmlDom(const string &formato , const bool &cache):formato(formato),cache(cache){	
 
 		if(!isFormatAccept()){
-			fmt::print(
-				"\n \033[31mError\033[00m: El formato '\033[33m{0}\033[00m' no es válido\n"
+			c_print("\n {s:red}: El formato \"{s:yellow}\" no es válido\n"
 				" * table (por defecto)\n"
 				" * json\n"
-				" * txt\n\n",
-				formato
-				);
+				" * txt\n\n","Error",formato.c_str());			
 			std::exit(EXIT_FAILURE);
 		}
 		const string html = loadContentBCentral();
@@ -146,28 +173,32 @@ const string getDateText(){
 	}
 	void HtmlDom::showTxtFormat(){
 		for(const auto &[name,value] : target_value ){	
-			fmt::print("{0}:{1}\n",to_lowercase(name),cleanValue(value));
+			c_print("{s}:{s}\n",to_lowercase(name).c_str(),cleanValue(value).c_str());
 		}
 	}
 	void HtmlDom::showJsonFormat(){
-		fmt::print("{{\n");
-		for(const auto &[name,value] : target_value ){			 
-			 fmt::print(" \"{0}\":{1}\n",to_lowercase(name),cleanValue(value));
+		// Aqui hay que buscar la manera 
+		// de reconocer cuando es el ultimo elemento para no agregar la
+		// coma 
+		printf("{\n");		
+		for(const auto &[name,value] : target_value ){
+			 c_print(" \"{s}\":{s}\n",to_lowercase(name).c_str(),cleanValue(value).c_str() );
 		}
-		fmt::print("}}\n");
+		printf("}\n");		
 	}
 	void HtmlDom::showTableFormat(){
-		int rows = 30;
-		fmt::print(
-			"+{0:-^{1}}+\n"
-			"|\033[32m{2: ^{1}}\033[00m|\n"
-			"+{3:-^{1}}+\n",
-			"",rows,getDateText(),"+");
 
+		printf("+------------------------------+\n");
+		c_print("|{s:green:^30}|\n",getDateText().c_str());
+		printf("+--------------+---------------+\n");
 		for(const auto &[name,value] : target_value ){			
-			fmt::print("| \033[32m{1:<{0}}\033[00m| \033[33m{2:>{0}}\033[00m |\n",((rows/2)-2),name,value);
-			fmt::print("+{0:-^{1}}+\n","+",rows);
-		}		
+			c_print(
+				"| {s:green:<13}|{s:yellow:>14} |\n",
+				name.c_str(),
+				value.c_str()
+				);
+			printf("+--------------+---------------+\n");
+		}
 	}
 	void HtmlDom::show(){		
 		if(formato == "table"){			
@@ -182,10 +213,11 @@ const string getDateText(){
 	auto ada_url = ada::parse(url); 	
 	if(!ada_url ){
 		if(url != ""){
-			fmt::print(
-		"\n \033[31mError\033[00m: La URL '\033[33m{0}\033[00m' no es válida\n\n",
-		url
-		);
+			c_print(
+				"{s:red} La URL \"{s:yellow}\" no es válida\n",
+				"Error",
+				url.c_str()
+			);			
 		}		
 	}else{		
 		string body_json  = "{";		
@@ -204,8 +236,8 @@ const string getDateText(){
 		);
 
 		switch( r.status_code ){
-			case  0:
-				fmt::print("\033[31mError\033[00m : No se pudo enviar la información a la Url -> \033[33m{}\033[00m\n",ada_url->get_href());
+			case  0:				
+				c_print("{s:red} : No se pudo enviar la información a la Url -> {s:yellow}\n","Error",ada_url->get_href().data() );
 			break;			
 		}		
 	}

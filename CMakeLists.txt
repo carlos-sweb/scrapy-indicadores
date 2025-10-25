@@ -29,6 +29,7 @@ if(IS_TERMUX)
     set(FMT_STATIC "$ENV{HOME}/fmt/libfmt.a")    
     set(ADA_INCLUDE_DIR "$ENV{HOME}/ada/include" )
     set(ADA_STATIC "$ENV{HOME}/ada/build/src/libada.a")
+    set(CPRINT_STATIC "$ENV{HOME}/c_print/build/libc_print.a")
     
     set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")    
 else()
@@ -41,6 +42,8 @@ else()
     
     set(ADA_INCLUDE_DIR "/usr/local/include" )
     set(ADA_STATIC "/usr/local/lib64/libada.a")
+    set(CPRINT_INCLUDE_DIR "/usr/local/include" )
+    set(CPRINT_STATIC "/usr/local/lib64/libc_print.a")
 
     set(INSTALL_BIN_DIR "/opt/${PROJECT_NAME}/bin" CACHE PATH "Binary install directory for Linux")   
 endif()
@@ -49,8 +52,8 @@ add_compile_definitions(INSTALL_BIN_DIR="${INSTALL_BIN_DIR}")
 
 add_executable(${PROJECT_NAME} src/main.cpp src/scrapycpp.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE     
-    
+target_link_libraries(${PROJECT_NAME} PRIVATE
+
     curl 
     crypto
     ssl
@@ -58,14 +61,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ${FMT_STATIC}
     ${LEXBOR_STATIC} 
     ${CPR_LIBRARY}
-    ${ADA_STATIC}    
+    ${ADA_STATIC}
+    ${CPRINT_STATIC}    
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     INSTALL_RPATH "/usr/local/lib64"
     BUILD_WITH_INSTALL_RPATH TRUE
 )
-include_directories(includes ${CPR_INCLUDE_DIR} ${LEXBOR_INCLUDE_DIR} ${ADA_INCLUDE_DIR})
+include_directories(includes ${CPR_INCLUDE_DIR} ${LEXBOR_INCLUDE_DIR} ${ADA_INCLUDE_DIR} ${CPRINT_INCLUDE_DIR}  )
 include(GNUInstallDirs)
 
 #install(TARGETS indicadores
