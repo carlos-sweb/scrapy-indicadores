@@ -120,8 +120,8 @@ inline const string cleanValue(const string &value){
 	                          ( const lxb_char_t *) "id" , 2 ,
 	                          ( const lxb_char_t *) value.c_str(),value.length(),true);
 
-		if (status != LXB_STATUS_OK || lxb_dom_collection_length(collection) == 0 ) {
-			cout << "Error\n";
+		if (status != LXB_STATUS_OK || lxb_dom_collection_length(collection) == 0 ) {			
+			printf("Error\n");
 			exit(EXIT_FAILURE);
 		}else{
 			element = lxb_dom_collection_element(collection,0);
@@ -189,16 +189,17 @@ inline const string cleanValue(const string &value){
 	}
 	void HtmlDom::showTableFormat(){
 
-		printf("+------------------------------+\n");
+		c_print("+{s:-^30}+\n","+");
 		c_print("|{s:green:^30}|\n",getDateText());
-		printf("+--------------+---------------+\n");
+		c_print("+{s:-^30}+\n","+");
 		for(const auto &[name,value] : target_value ){			
 			c_print(
 				"| {s:green:<13}|{s:yellow:>14} |\n",
 				name.c_str(),
 				value.c_str()
 				);
-			printf("+--------------+---------------+\n");
+			c_print("+{s:-^30}+\n","+");
+
 		}
 	}
 	void HtmlDom::show(){		
