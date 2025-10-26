@@ -66,6 +66,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ${CPRINT_STATIC}    
 )
 
+add_custom_target(run
+    COMMAND $<TARGET_FILE:${PROJECT_NAME}> ${ARGS}
+    DEPENDS ${PROJECT_NAME}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     INSTALL_RPATH "/usr/local/lib64"
     BUILD_WITH_INSTALL_RPATH TRUE

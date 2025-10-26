@@ -4,9 +4,9 @@
 
 using namespace argh;
 
+// cmake -DARGS="" -S . -B build -G Ninja && ninja -C build run
 // valgrind --leak-check=full --show-leak-kinds=all ./build/indicadores
 int main(int, char * argv[]){
-
 	parser cmdl(argv);
 	
 	if(cmdl[{"-h","--help"}]){ScrapyCpp::showHelp();return 0;}
