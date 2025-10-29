@@ -58,8 +58,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     curl 
     crypto
     ssl
-    
-    
+        
     ${LEXBOR_STATIC} 
     ${CPR_LIBRARY}
     ${ADA_STATIC}
@@ -79,9 +78,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 include_directories(includes ${CPR_INCLUDE_DIR} ${LEXBOR_INCLUDE_DIR} ${ADA_INCLUDE_DIR} ${CPRINT_INCLUDE_DIR}  )
 include(GNUInstallDirs)
 
-#install(TARGETS indicadores
-#    RUNTIME DESTINATION ${INSTALL_BIN_DIR}
-#)
+
+# Copiar binario a carpeta bin/ del proyecto (para GitHub Actions)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/bin
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/bin/
+    COMMENT "Copiando binario a ${CMAKE_SOURCE_DIR}/bin/"
+)
 
 install(TARGETS indicadores
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
