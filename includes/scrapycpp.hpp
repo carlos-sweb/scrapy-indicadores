@@ -20,8 +20,7 @@ namespace fs = std::filesystem;
 static constexpr const char *url_central = "https://si3.bcentral.cl/Indicadoressiete/secure/Indicadoresdiarios.aspx";
 static constexpr const char *url_sii_utm_uta = "https://www.sii.cl/valores_y_fechas/utm/utm{}.htm";
 static constexpr const char* meses[12] = {"Enero","Febrero","Marzo", "Abril", "Mayo", "Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"};
-static constexpr const unsigned int formato_aceptados_len = 4;
-static constexpr const string formato_aceptados[formato_aceptados_len] = {"table","json","txt","none"};
+static constexpr const char* formato_aceptados[4] = {"table","json","txt","none"};
 
 const vector<pair<string,string>> target_indicadores = {
 	{"UF","lblValor1_1"},

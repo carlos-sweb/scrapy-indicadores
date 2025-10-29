@@ -101,14 +101,15 @@ inline const string cleanValue(const string &value){
 	    return buffer;
 	}
 
-	bool HtmlDom::isFormatAccept(){
-		size_t i = 0;
-		while( i < formato_aceptados_len ){
-			if( formato_aceptados[i] == formato) return true;
-			++i;
-		}		
-		return false;
+	bool HtmlDom::isFormatAccept() {
+	    for (const char* aceptado : formato_aceptados) {
+	        if (formato == aceptado)
+	            return true;
+	    }
+	    return false;
 	}
+
+
 
 	const string HtmlDom::ById( const string &value){
 	string text = "";	
@@ -154,7 +155,6 @@ inline const string cleanValue(const string &value){
 	}
 
 	HtmlDom::HtmlDom(const string &formato , const bool &cache):formato(formato),cache(cache){	
-
 		if(!isFormatAccept()){
 			c_print("\n {s:red}: El formato \"{s:yellow}\" no es válido\n"
 				" * table (por defecto)\n"
@@ -181,10 +181,16 @@ inline const string cleanValue(const string &value){
 		// Aqui hay que buscar la manera 
 		// de reconocer cuando es el ultimo elemento para no agregar la
 		// coma 
-		printf("{\n");		
-		for(const auto &[name,value] : target_value ){
-			 c_print(" \"{s}\":{s}\n",to_lowercase(name).c_str(),cleanValue(value).c_str() );
-		}
+		printf("{\n");
+		int it = 0;
+		while(it < target_value.size()){
+			c_print(" \"{s}\":{s}{s}\n",
+				to_lowercase(target_value.at(it).first).c_str(),
+				cleanValue(target_value.at(it).second).c_str(),
+				(it == (target_value.size()-1) ? "": ",")
+			);			
+			++it;
+		}		
 		printf("}\n");		
 	}
 	void HtmlDom::showTableFormat(){
@@ -230,7 +236,7 @@ inline const string cleanValue(const string &value){
 
 			// Definimos el largo del pattern max
 			int buffer_json_len = name.size() +  value.size() + 8;
-			char buffer_json[ buffer_json_len ];
+			char buffer_json[ buffer_json_len ];	
 
 			snprintf(buffer_json,buffer_json_len,"\"%s\":%s%s", 
 				to_lowercase(name).c_str() ,
