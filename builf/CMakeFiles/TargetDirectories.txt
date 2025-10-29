@@ -1,8 +1,0 @@
-/home/sweb/github-project/scrapy-indicadores/builf/CMakeFiles/indicadores.dir
-/home/sweb/github-project/scrapy-indicadores/builf/CMakeFiles/run.dir
-/home/sweb/github-project/scrapy-indicadores/builf/CMakeFiles/edit_cache.dir
-/home/sweb/github-project/scrapy-indicadores/builf/CMakeFiles/rebuild_cache.dir
-/home/sweb/github-project/scrapy-indicadores/builf/CMakeFiles/list_install_components.dir
-/home/sweb/github-project/scrapy-indicadores/builf/CMakeFiles/install.dir
-/home/sweb/github-project/scrapy-indicadores/builf/CMakeFiles/install/local.dir
-/home/sweb/github-project/scrapy-indicadores/builf/CMakeFiles/install/strip.dir
