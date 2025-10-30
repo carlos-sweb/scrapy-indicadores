@@ -3,9 +3,11 @@
 ## 📌 Propósito del Proyecto
 Este proyecto es una herramienta de línea de comandos que obtiene los principales indicadores económicos de Chile directamente desde el sitio web del Banco Central de Chile. Proporciona acceso rápido y sencillo a datos económicos clave como:
 
-- 💵 **Dólar observado**
-- 💶 **Euro**
-- 🏠 **UF (Unidad de Fomento)**
+- 💵 **Dólar observado - CLP**
+- 💶 **Euro - CLP**
+- 🏠 **UF (Unidad de Fomento) - CLP**
+- 🥇 **Oro (Onza troy) - USD**
+- 🥇 **Plata (Onza troy) - USD**
 
 ## 💡 Motivación
 Desarrollé este proyecto para experimentar con la librería **lexbor**, un motor HTML y CSS escrito en C que destaca por su:
