@@ -1,6 +1,6 @@
 # Indicadores Económicos de Chile
 
-![Banco Central de Chile](https://www.bcentral.cl/image/layout_set_logo)
+[Banco Central de Chile](https://www.bcentral.cl)
 
 
 ## 📌 Propósito del Proyecto
