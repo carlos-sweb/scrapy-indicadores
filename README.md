@@ -7,7 +7,9 @@ Este proyecto es una herramienta de línea de comandos que obtiene los principal
 - 💶 **Euro - CLP**
 - 🏠 **UF (Unidad de Fomento) - CLP**
 - 🥇 **Oro (Onza troy) - USD**
-- 🥇 **Plata (Onza troy) - USD**
+- 🥈 **Plata (Onza troy) - USD**
+- 💴 **Yen - USD**
+- ⛏️ **Cobre**
 
 ## 💡 Motivación
 Desarrollé este proyecto para experimentar con la librería **lexbor**, un motor HTML y CSS escrito en C que destaca por su:
