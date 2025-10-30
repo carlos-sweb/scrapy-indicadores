@@ -1,8 +1,6 @@
 # Indicadores Económicos de Chile
 
-![image](https://www.bcentral.cl/image/layout_set_logo?img_id=7708671&t=1761411348608)
 [Banco Central de Chile](https://www.bcentral.cl)
-
 
 ## 📌 Propósito del Proyecto
 Este proyecto es una herramienta de línea de comandos que obtiene los principales indicadores económicos de Chile directamente desde el sitio web del Banco Central de Chile. Proporciona acceso rápido y sencillo a datos económicos clave como:
