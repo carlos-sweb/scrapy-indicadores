@@ -1,8 +1,4 @@
-# Indicadores Económicos de Chile
-
-[Banco Central de Chile](https://www.bcentral.cl)
-
-[Sitio web desplegado](https://indicadores-chile.netlify.app/)
+# 🇨🇱 Indicadores Económicos de Chile
 
 ## 📌 Propósito del Proyecto
 Este proyecto es una herramienta de línea de comandos que obtiene los principales indicadores económicos de Chile directamente desde el sitio web del Banco Central de Chile. Proporciona acceso rápido y sencillo a datos económicos clave como:
@@ -107,6 +103,13 @@ Indicadores Chile
 +--------------+---------------+
 ```
 
+## 🌐 Fuente
+
+[Banco Central de Chile](https://www.bcentral.cl)
+
+## 👀 Ejemplo online
+
+[Sitio web desplegado](https://indicadores-chile.netlify.app/)
 
 📬 Contacto
 Para consultas o colaboraciones, contáctame en:
