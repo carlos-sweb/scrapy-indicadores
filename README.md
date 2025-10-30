@@ -2,6 +2,8 @@
 
 [Banco Central de Chile](https://www.bcentral.cl)
 
+[indicadores WEB](https://indicadores-chile.netlify.app/)
+
 ## 📌 Propósito del Proyecto
 Este proyecto es una herramienta de línea de comandos que obtiene los principales indicadores económicos de Chile directamente desde el sitio web del Banco Central de Chile. Proporciona acceso rápido y sencillo a datos económicos clave como:
 
