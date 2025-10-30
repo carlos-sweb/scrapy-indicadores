@@ -1,5 +1,6 @@
 # Indicadores Económicos de Chile
 
+![image](https://www.bcentral.cl/image/layout_set_logo?img_id=7708671&t=1761411348608)
 [Banco Central de Chile](https://www.bcentral.cl)
 
 
