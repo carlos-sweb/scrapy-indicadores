@@ -79,11 +79,28 @@ include_directories(includes ${CPR_INCLUDE_DIR} ${LEXBOR_INCLUDE_DIR} ${ADA_INCL
 include(GNUInstallDirs)
 
 
+# Detectar arquitectura del sistema
+execute_process(
+    COMMAND uname -m
+    OUTPUT_VARIABLE ARCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# Determinar el nombre del binario según arquitectura
+if(IS_TERMUX)
+    # En Termux (Android) generalmente es aarch64
+    set(BINARY_NAME "indicadores-aarch64")
+else()
+    # En sistemas estándar usar la arquitectura detectada
+    # x86_64, i686, aarch64, armv7l, etc.
+    set(BINARY_NAME "indicadores-${ARCH}")
+endif()
+
 # Copiar binario a carpeta bin/ del proyecto (para GitHub Actions)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/bin
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/bin/
-    COMMENT "Copiando binario a ${CMAKE_SOURCE_DIR}/bin/"
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/bin/${BINARY_NAME}
+    COMMENT "Copiando binario a ${CMAKE_SOURCE_DIR}/bin/${BINARY_NAME}"
 )
 
 install(TARGETS indicadores
