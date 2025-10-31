@@ -31,14 +31,11 @@ const vector<pair<string,string>> target_indicadores = {
 	{"Plata","lblValor2_4"},
 	{"Cobre","lblValor2_5"}
 };
-
 void showHelp();
 void showVersion();
-
 inline const string to_lowercase(const string& str);
 // Convertir a mayúsculas
 inline const string to_uppercase(const string& str);
-
 /**
  * @cleanValue
  * */
@@ -46,12 +43,10 @@ inline const string cleanValue(const string &value);
 
 inline const char* getDateText();
 
-struct HtmlDom {    
-
+struct HtmlDom {
 	bool cache;
 	string formato;
 	vector<pair<string,string>> target_value = {};
-
 	size_t size;
 	lxb_status_t status;
 	lxb_html_document_t  * document;
@@ -66,7 +61,8 @@ struct HtmlDom {
 	void showJsonFormat();
 	void showTableFormat();
 	void show();
-	void send(const string &url);	
+	void send(const string &url);
+	void save(const string &path);
 	const string loadContentBCentral();
 };
 

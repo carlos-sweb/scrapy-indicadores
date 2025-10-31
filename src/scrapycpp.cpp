@@ -3,51 +3,19 @@
 
 namespace ScrapyCpp{
 
-void showVersion(){
-	c_print(" Version: {s:yellow}\n","0.1.0");
-}
+void showVersion(){ c_print(" Version: {s:yellow}\n","0.1.0");}
 
-void showHelp(){
-	
+void showHelp(){	
 	c_print(" {s:green}\n","Indicadores Chile");
 	showVersion();
 	printf("\n Modo de uso:\n");
-
-	c_print(
-			"{s:<24}: {s}\n{s:>26}{s}\n",
-		    " -f,--formato <FORMATO>",
-		    "Tipo de formato de salida",
-		    "",
-		    "table(por defecto),json,txt,none"
-	);
-
-	c_print(
-			"{s:<24}: {s}\n{s:>26}{s}\n",
-		    " -s,--send <URL>",
-		    "Envia la información a la url",
-		    "",
-		    "tipo POST(por defecto)"		    
-	);
-
-	c_print(
-			"{s:<24}: {s}\n",
-		    " -nc,--no-cache",
-		    "Remueve el sistema de cache"
-	);
-
-	c_print(
-			"{s:<24}: {s}\n",
-		    " -h,--help",
-		    "Modo de uso"
-	);
-
-	c_print(
-			"{s:<24}: {s}\n\n",
-		    " -v,--version",
-		    "Muestra la Versión"
-	);
-	
-	
+	c_print("{s:<24}: {s}\n{s:>26}{s}\n"," -f,--formato <FORMATO>","Tipo de formato de salida","","table(por defecto),json,txt,none");
+	c_print("{s:<24}: {s}\n{s:>26}{s}\n"," -s,--send <URL>","Envia la información a la url","","tipo POST(por defecto)");
+	c_print("{s:<24}: {s}\n"," -nc,--no-cache","Remueve el sistema de cache");
+	c_print("{s:<24}: {s}\n"," -h,--help","Modo de uso");
+	c_print("{s:<24}: {s}\n", " -o,--output <PATH>", "Ruta del archivo de salida" );
+	c_print("{s:<24}: {s}\n", " --silent", "Modo silenciso" );
+	c_print("{s:<24}: {s}\n\n", " -v,--version", "Muestra la Versión" );
 }
 
 inline const string to_lowercase(const string& str) {
@@ -194,7 +162,6 @@ inline const string cleanValue(const string &value){
 		printf("}\n");		
 	}
 	void HtmlDom::showTableFormat(){
-
 		c_print("+{s:-^30}+\n","+");
 		c_print("|{s:green:^30}|\n",getDateText());
 		c_print("+{s:-^30}+\n","+");
@@ -205,7 +172,6 @@ inline const string cleanValue(const string &value){
 				value.c_str()
 				);
 			c_print("+{s:-^30}+\n","+");
-
 		}
 	}
 	void HtmlDom::show(){		
@@ -216,6 +182,25 @@ inline const string cleanValue(const string &value){
 		}else if(formato == "txt"){	
 			showTxtFormat();		
 		}
+	}
+	void HtmlDom::save(const string &path){
+
+		std::ofstream salida( path ,std::ios::out | std::ios::trunc);
+		if (!salida) {
+			std::cerr << "No se pudo crear el archivo.\n";
+			//return 1;
+		}
+		salida << "{\n";
+		for(auto const &item : target_value){			
+			salida << "	\"" << item.first << "\":\"" << item.second << "\",\n";
+		}
+
+		// Podemos procesar en caso de error
+		// Falta Trabajo
+		salida << "}";
+		salida.close();
+
+
 	}
 	void HtmlDom::send(const string &url){
 	auto ada_url = ada::parse(url); 	
