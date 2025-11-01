@@ -113,7 +113,7 @@ Indicadores Chile
 
 ## 👀 Ejemplo online
 
-[Sitio web desplegado](https://indicadores-chile.netlify.app/)
+[Sitio web desplegado](https://carlos-sweb.github.io/scrapy-indicadores/)
 
 📬 Contacto
 Para consultas o colaboraciones, contáctame en:
