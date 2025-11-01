@@ -191,10 +191,13 @@ inline const string cleanValue(const string &value){
 			//return 1;
 		}
 		salida << "{\n";
-		for(auto const &item : target_value){			
-			salida << "	\"" << item.first << "\":\"" << item.second << "\",\n";
-		}
 
+		auto it = target_value.begin();		
+		while(it != target_value.end()){
+			salida << "	\"" << it->first << "\":\"" << it->second << "\"";
+			if( ++it != target_value.end() ) salida << ",";
+			salida << "\n";			
+		}
 		// Podemos procesar en caso de error
 		// Falta Trabajo
 		salida << "}";
