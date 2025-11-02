@@ -1,3 +1,12 @@
+import { appendFile } from "node:fs/promises";
+
+const date = new Date();
+const day = date.getDate().toString().padStart(2, '0');
+const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+const month = months[date.getMonth()];
+const year = date.getFullYear();
+
+
 const create_card = (name,value)=>{
 	return `	<div class="card">
 		<div class="header-card">
@@ -9,7 +18,10 @@ const create_card = (name,value)=>{
 		</div>
 	</div>`;
 }
-const html_head = `<!DOCTYPE html>
+
+
+		
+	const html_head = `<!DOCTYPE html>
 <html lang="es">
 <head>
 	<meta charset="UTF-8">
@@ -32,10 +44,13 @@ const html_head = `<!DOCTYPE html>
 		<!-- FECHA -->
 		<div class="card-hidden">
 			<div class="header-card-hidden">
-				<span class="title">Hoy, 29 de Octubre 2025</span>
+				<span class="title">${day} de ${month}, ${year}</span>
 			</div>
 		</div>
 `
+
+
+
 
 const html_body =`
 		<!-- CARDS DE INDICADORES -->
@@ -121,7 +136,7 @@ const html_footer =
 			</div>
 			
 			<div class="footer-update">
-				Última actualización: 29 de Octubre, 2025 • Actualización diaria
+				Última actualización: ${day} de ${month}, ${year} • Actualización diaria
 			</div>
 			
 			<div class="footer-disclaimer">
@@ -140,9 +155,11 @@ const path = __dirname+"/data.json",
 file = Bun.file(path),
 contents = await file.json();
 
-for(const name in  contents){
-	const value = contents[name];
-	console.log(create_card(name,value))
-}
+const output = Bun.file(__dirname +"/index.html");
+const outWriter = output.writer();
+outWriter.write( html_head );
+for(const name in  contents)  outWriter.write(create_card( name , contents[name] ))
+outWriter.write( html_footer );
+outWriter.end();
 
-//console.log(html_head,html_body,html_footer)
+await Bun.write(__dirname+"/../www/index.html", output );
