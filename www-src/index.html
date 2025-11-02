@@ -3,26 +3,11 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Indicadores Chile</title>
-	<link rel="manifest" href="manifest.json">
+	<title>Indicadores Chile</title>	
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="style.min.css">
-	<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/scrapy-indicadores/sw.js', {scope: '/scrapy-indicadores/'})
-        .then(registration => {
-          console.log('Service Worker registrado con éxito:', registration);
-        })
-        .catch(error => {
-          console.log('Fallo el registro del Service Worker:', error);
-        });
-    });
-  }
-</script>
-<script src="sw.js"/>
+	<link rel="stylesheet" href="style.min.css">	
 </head>
 <body>
 	<!-- NAVBAR -->
