@@ -5,7 +5,9 @@ const urlsToCache = [
   '/scrapy-indicadores/styles.css',
   '/scrapy-indicadores/manifest.json',
   '/scrapy-indicadores/icon-192x192.png',
-  '/scrapy-indicadores/icon-512x512.png', // Archivo CSS
+  '/scrapy-indicadores/icon-512x512.png',
+  '/scrapy-indicadores/sw.js',
+   // Archivo CSS
   // ... lista de otros archivos JS, imágenes y fuentes que quieres cachear
 ];
 
