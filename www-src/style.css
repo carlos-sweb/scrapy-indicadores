@@ -28,6 +28,9 @@
 			font-size: 22px;
 			font-weight: 600;
 			color: #37474F;
+			position: sticky;
+			top: 0;
+			z-index: 100;
 		}
 
 		/* CONTENEDOR PRINCIPAL */
