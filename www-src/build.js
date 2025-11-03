@@ -1,4 +1,10 @@
-import { appendFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import CleanCSS from "clean-css";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const date = new Date();
 const day = date.getDate().toString().padStart(2, '0');
@@ -151,15 +157,36 @@ const html_footer =
 </body>
 </html>`
 
-const path = __dirname+"/data.json",
-file = Bun.file(path),
-contents = await file.json();
+// Leer el archivo JSON
+const dataPath = join(__dirname, "data.json");
+const dataContent = await readFile(dataPath, "utf-8");
+const contents = JSON.parse(dataContent);
 
-const output = Bun.file(__dirname +"/index.html");
-const outWriter = output.writer();
-outWriter.write( html_head );
-for(const name in  contents)  outWriter.write(create_card( name , contents[name] ))
-outWriter.write( html_footer );
-outWriter.end();
+// Construir el HTML
+let htmlOutput = html_head;
+for(const name in contents) {
+	htmlOutput += create_card(name, contents[name]);
+}
+htmlOutput += html_footer;
 
-await Bun.write(__dirname+"/../www/index.html", output );
+// Escribir el archivo HTML
+const outputPath = join(__dirname, "..", "www", "index.html");
+await writeFile(outputPath, htmlOutput, "utf-8");
+
+// Minificar CSS
+const normalizeCssPath = join(__dirname, "normalize.css");
+const styleCssPath = join(__dirname, "style.css");
+
+const normalizeCss = await readFile(normalizeCssPath, "utf-8");
+const styleCss = await readFile(styleCssPath, "utf-8");
+
+// Concatenar ambos archivos CSS
+const combinedCss = normalizeCss + "\n" + styleCss;
+
+// Minificar con clean-css
+const minifier = new CleanCSS();
+const minified = minifier.minify(combinedCss);
+
+// Escribir el CSS minificado
+const cssOutputPath = join(__dirname, "..", "www", "style.min.css");
+await writeFile(cssOutputPath, minified.styles, "utf-8");
