@@ -3,6 +3,9 @@ project(indicadores LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Option to enable sanitizers for memory analysis
+option(ENABLE_SANITIZERS "Enable AddressSanitizer and LeakSanitizer" OFF)
+
 # 1. Detectar si estamos en Termux (Android)
 if(EXISTS "/data/data/com.termux/files/usr")
     set(IS_TERMUX TRUE)
@@ -29,7 +32,7 @@ if(IS_TERMUX)
     
     set(ADA_INCLUDE_DIR "$ENV{HOME}/ada/include" )
     set(ADA_STATIC "$ENV{HOME}/ada/build/src/libada.a")
-    set(CPRINT_INCLUDE_DIR "$ENV{HOME}/c_print")
+    set(CPRINT_INCLUDE_DIR "$ENV{HOME}/c_print/include")
     set(CPRINT_STATIC "$ENV{HOME}/c_print/build/libc_print.a")
     
     set(INSTALL_BIN_DIR "$ENV{HOME}/bin" CACHE PATH "Binary install directory for Termux")    
@@ -52,6 +55,21 @@ endif()
 add_compile_definitions(INSTALL_BIN_DIR="${INSTALL_BIN_DIR}")
 
 add_executable(${PROJECT_NAME} src/main.cpp src/scrapycpp.cpp)
+
+# Enable sanitizers if requested
+if(ENABLE_SANITIZERS)
+    message(STATUS "Sanitizers enabled: AddressSanitizer + LeakSanitizer")
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -fsanitize=address
+        -fsanitize=leak
+        -fno-omit-frame-pointer
+        -g
+    )
+    target_link_options(${PROJECT_NAME} PRIVATE
+        -fsanitize=address
+        -fsanitize=leak
+    )
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 
