@@ -14,13 +14,19 @@ const year = date.getFullYear();
 
 
 const create_card = (name,value)=>{
+	const clpIndicators = ["UF", "Dolar", "Euro"];
+	const usdIndicators = ["Oro", "Plata", "Cobre", "Yen"];
+
+	const moneyType = clpIndicators.includes(name) ? "CLP" :
+	                  usdIndicators.includes(name) ? "USD" : "CLP";
+
 	return `	<div class="card">
 		<div class="header-card">
 			<span class="title">${name}</span>
 		</div>
 		<div class="body-card">
 			<span class="price">${value}</span><br>
-			<span class="money-type">CLP</span>
+			<span class="money-type">${moneyType}</span>
 		</div>
 	</div>`;
 }
