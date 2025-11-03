@@ -1,0 +1,44 @@
+name: Update Indicators Daily
+
+on:
+  schedule:
+    # Ejecutar todos los días a las 5:00 AM UTC
+    - cron: '0 5 * * *'
+
+  # Permite ejecutar manualmente desde la pestaña Actions
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Make binary executable
+        run: chmod +x ./bin/indicadores-x86_64
+
+      - name: Fetch indicators data
+        run: ./bin/indicadores-x86_64 --silent -o="www-src/data.json"
+
+      - name: Build static files
+        run: node www-src/build.js
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add www-src/data.json www/index.html www/style.min.css
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update indicators data - $(date +'%Y-%m-%d %H:%M:%S')" && git push)
