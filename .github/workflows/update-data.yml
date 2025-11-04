@@ -10,10 +10,15 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -42,3 +47,15 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add www-src/data.json www/index.html www/style.min.css
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update indicators data - $(date +'%Y-%m-%d %H:%M:%S')" && git push)
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './www'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
