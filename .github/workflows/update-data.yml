@@ -46,7 +46,45 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add www-src/data.json www/index.html www/style.min.css
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update indicators data - $(date +'%Y-%m-%d %H:%M:%S')" && git push)
+
+          # Check if there are changes to commit
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          # Commit changes
+          git commit -m "Update indicators data - $(date +'%Y-%m-%d %H:%M:%S')"
+
+          # Try to push with retries (in case of concurrent workflows)
+          max_retries=3
+          retry_count=0
+
+          while [ $retry_count -lt $max_retries ]; do
+            echo "Attempting to push (attempt $((retry_count + 1))/$max_retries)..."
+
+            # Pull with rebase to integrate remote changes
+            git pull --rebase origin master || {
+              echo "Failed to pull with rebase"
+              exit 1
+            }
+
+            # Try to push
+            if git push origin master; then
+              echo "Successfully pushed changes"
+              exit 0
+            fi
+
+            retry_count=$((retry_count + 1))
+
+            if [ $retry_count -lt $max_retries ]; then
+              echo "Push failed, waiting 5 seconds before retry..."
+              sleep 5
+            fi
+          done
+
+          echo "Failed to push after $max_retries attempts"
+          exit 1
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
