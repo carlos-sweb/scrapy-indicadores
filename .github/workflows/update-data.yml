@@ -32,11 +32,22 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Make binary executable
-        run: chmod +x ./bin/indicadores-x86_64
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.16.0
+
+      - name: Cache Zig
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/zig
+          key: zig-${{ hashFiles('build.zig.zon', 'build.zig') }}
+
+      - name: Build
+        run: zig build -Doptimize=ReleaseSafe
 
       - name: Fetch indicators data
-        run: ./bin/indicadores-x86_64 --silent -o="www-src/data.json"
+        run: ./zig-out/bin/indicadores --silent -o="www-src/data.json"
 
       - name: Build static files
         run: node www-src/build.js

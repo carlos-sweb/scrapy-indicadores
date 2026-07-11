@@ -1,0 +1,17 @@
+.{
+    .name = .indicadores,
+    .version = "0.2.0",
+    .fingerprint = 0xb1e9f9af0a76583a,
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{
+        .lexbor = .{
+            .url = "https://github.com/lexbor/lexbor/archive/refs/tags/v2.7.0.tar.gz",
+            .hash = "N-V-__8AAFW4qwJZyWdOa6_v_vAWQ3N4X4bXIryk3MO2uBKT",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
