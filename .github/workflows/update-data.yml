@@ -32,19 +32,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Setup Zig
-        uses: mlugg/setup-zig@v2
-        with:
-          version: 0.16.0
-
-      - name: Cache Zig
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/zig
-          key: zig-${{ hashFiles('build.zig.zon', 'build.zig') }}
-
-      - name: Build
-        run: zig build -Doptimize=ReleaseSafe
+      # El binario es musl-estatico (ver README: "Publicar el binario del CI");
+      # corre directo en ubuntu-latest sin dependencias.
+      - name: Make binary executable
+        run: chmod +x ./bin/indicadores-x86_64
 
       # El resolver DNS propio de Zig (std, siempre activo en Linux) no logra
       # resolver el CNAME->GSLB de si3.bcentral.cl. Se pre-resuelve con el
@@ -59,7 +50,7 @@ jobs:
           echo "$ip si3.bcentral.cl" | sudo tee -a /etc/hosts
 
       - name: Fetch indicators data
-        run: ./zig-out/bin/indicadores --silent -o="www-src/data.json"
+        run: ./bin/indicadores-x86_64 --silent -o="www-src/data.json"
 
       - name: Build static files
         run: node www-src/build.js

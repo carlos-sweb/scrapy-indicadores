@@ -64,6 +64,18 @@ zig build -Dtarget=aarch64-linux-gnu -Doptimize=ReleaseSafe
 zig build -Dtarget=x86_64-linux-gnu.2.31 -Doptimize=ReleaseSafe
 ```
 
+### **Publicar el binario del CI**
+
+El workflow diario **no compila**: ejecuta el binario musl-estático commiteado en
+`bin/indicadores-x86_64` (1.4 MB, sin dependencias — corre en cualquier Linux x86_64).
+⚠️ **Después de cambiar el código hay que regenerarlo y commitearlo junto al cambio:**
+
+```sh
+zig build -Dtarget=x86_64-linux-musl -Doptimize=ReleaseSmall
+cp zig-out/bin/indicadores bin/indicadores-x86_64
+git add bin/indicadores-x86_64
+```
+
 ---
 
 ## 📄 Uso
