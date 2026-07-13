@@ -19,9 +19,14 @@ Notas de la ejecución:
 - El flag `-nc/--no-cache` del original está invertido respecto a su nombre (sin `-nc`
   siempre descarga; con `-nc` usa la caché diaria si existe). Se replicó tal cual.
 - **libcurl eliminado (2026-07-11)**: HTTP/TLS via `std.http.Client`. El binario solo depende
-  de libc. Requisito: linkear libc para que el DNS use `getaddrinfo` (el resolver propio de
-  Zig falla con la respuesta CNAME→GSLB de si3.bcentral.cl). El GSLB del sitio (TTL 5s) a
-  veces entrega backends muertos → `httpGet` reintenta 4 veces con 5s de espera.
+  de libc. `httpGet` reintenta 4 veces con 5s de espera.
+- **Problema DNS conocido (diagnosticado 2026-07-12)**: en Linux, Zig 0.16 usa SIEMPRE su
+  resolver DNS propio (`std.Io.Threaded.lookupDnsSearch` — nunca `getaddrinfo`, se linkee o
+  no libc), y este falla con la respuesta CNAME→GSLB de si3.bcentral.cl: intermitente en
+  escritorio, consistente en los runners de GitHub (`NameServerFailure`). Workaround: fijar
+  el host en `/etc/hosts`, que el resolver de Zig consulta ANTES de hacer DNS — el workflow
+  lo hace con un paso de pre-resolución vía `getent`. Candidato a reporte upstream en
+  ziglang/zig.
 - Cross-compile completo desbloqueado: `zig build -Dtarget=aarch64-linux-gnu` (Termux) y
   `-Dtarget=x86_64-linux-gnu.2.31` (glibc mínima 2.28) compilan sin dependencias externas.
 - La caché usa `-Dinstall-bin-dir` (default `/opt/indicadores/bin`, paridad con CMake).

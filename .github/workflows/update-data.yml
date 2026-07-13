@@ -46,6 +46,18 @@ jobs:
       - name: Build
         run: zig build -Doptimize=ReleaseSafe
 
+      # El resolver DNS propio de Zig (std, siempre activo en Linux) no logra
+      # resolver el CNAME->GSLB de si3.bcentral.cl. Se pre-resuelve con el
+      # resolver del sistema y se fija en /etc/hosts, que Zig consulta primero.
+      - name: Pin DNS de si3.bcentral.cl
+        run: |
+          ip=$(getent ahostsv4 si3.bcentral.cl | awk '{print $1; exit}' || true)
+          if [ -z "$ip" ]; then
+            ip=$(python3 -c "import socket; print(socket.gethostbyname('si3.bcentral.cl'))")
+          fi
+          echo "si3.bcentral.cl -> $ip"
+          echo "$ip si3.bcentral.cl" | sudo tee -a /etc/hosts
+
       - name: Fetch indicators data
         run: ./zig-out/bin/indicadores --silent -o="www-src/data.json"
 

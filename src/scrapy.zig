@@ -150,9 +150,11 @@ pub const Dom = struct {
 // ---------------------------------------------------------------------------
 // HTTP (std.http.Client)
 //
-// Nota: el binario DEBE linkear libc para que la resolucion DNS use
-// getaddrinfo del sistema; el resolver propio de Zig falla con la
-// respuesta CNAME->GSLB de si3.bcentral.cl.
+// Nota DNS: en Linux, Zig 0.16 usa SIEMPRE su resolver propio (nunca
+// getaddrinfo, aunque se linkee libc) y este falla de forma intermitente
+// con la respuesta CNAME->GSLB de si3.bcentral.cl. Workaround: fijar el
+// host en /etc/hosts (Zig lo consulta antes de hacer DNS); el workflow de
+// CI lo hace automaticamente. Los reintentos de httpGet mitigan el resto.
 // ---------------------------------------------------------------------------
 
 pub const HttpResponse = struct { status: u16, body: []u8 };
