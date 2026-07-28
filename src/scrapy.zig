@@ -43,7 +43,7 @@ pub fn showHelp(out: *Writer) !void {
     try out.print(" " ++ green ++ "{s}" ++ reset ++ "\n", .{"Indicadores Chile"});
     try showVersion(out);
     try out.writeAll("\n Modo de uso:\n");
-    try out.print("{s:<24}: {s}\n{s:>26}{s}\n", .{ " -f,--formato <FORMATO>", "Tipo de formato de salida", "", "table(por defecto),json,txt,none" });
+    try out.print("{s:<24}: {s}\n{s:>26}{s}\n", .{ " -f,--format <FORMATO>", "Tipo de formato de salida", "", "table(por defecto),json,txt,none" });
     try out.print("{s:<24}: {s}\n{s:>26}{s}\n", .{ " -s,--send <URL>", "Envia la información a la url", "", "tipo POST(por defecto)" });
     try out.print("{s:<24}: {s}\n", .{ " -nc,--no-cache", "Remueve el sistema de cache" });
     try out.print("{s:<24}: {s}\n", .{ " -h,--help", "Modo de uso" });

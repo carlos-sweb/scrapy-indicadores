@@ -8,6 +8,10 @@
             .url = "https://github.com/lexbor/lexbor/archive/refs/tags/v2.7.0.tar.gz",
             .hash = "N-V-__8AAFW4qwJZyWdOa6_v_vAWQ3N4X4bXIryk3MO2uBKT",
         },
+        .zargs = .{
+            .url = "https://github.com/carlos-sweb/z-args/archive/70de6cf399bdf5333f9b41e8b369ae1bea6af44d.tar.gz",
+            .hash = "zargs-0.1.0-PvR7OHEMAQBEqor4mh9lanQg8X-ipXjMZEzDFvFDQQyl",
+        },
     },
     .paths = .{
         "build.zig",

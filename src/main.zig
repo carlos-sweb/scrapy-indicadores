@@ -11,61 +11,25 @@
 //!   --silent                Modo silencioso (sin salida por consola)
 const std = @import("std");
 const scrapy = @import("scrapy.zig");
+const zargs = @import("zargs");
+const Declarative = zargs.Declarative;
 
-const Options = struct {
-    help: bool = false,
-    version: bool = false,
-    silent: bool = false,
-    nc: bool = false,
-    format: []const u8 = "table",
-    send: ?[]const u8 = null,
-    output: ?[]const u8 = null,
+const Cli = struct {
+    help: Declarative.Flag(bool, .{ .short = 'h', .long = "help", .help = "Muestra la ayuda", .default = false }),
+    version: Declarative.Flag(bool, .{ .short = 'v', .long = "version", .help = "Muestra la version", .default = false }),
+    format: Declarative.Flag([]const u8, .{ .short = 'f', .long = "format", .help = "Formato de salida (table, json, txt, none)", .default = "table" }),
+    cache: Declarative.Flag(bool, .{ .long = "cache", .help = "Sistema de cache (--no-cache para desactivar)", .default = true }),
+    send: Declarative.Flag([]const u8, .{ .short = 's', .long = "send", .help = "Envia los datos via POST a la URL", .default = "" }),
+    output: Declarative.Flag([]const u8, .{ .short = 'o', .long = "output", .help = "Guarda la salida en un archivo", .default = "" }),
+    silent: Declarative.Flag(bool, .{ .long = "silent", .help = "Modo silencioso (sin salida por consola)", .default = false }),
 };
 
-/// Acepta `-x valor`, `-x=valor`, `--largo valor` y `--largo=valor`.
-fn takeValue(i: *usize, args: []const [:0]const u8, short: []const u8, long: []const u8) ?[]const u8 {
-    const arg = args[i.*];
-    for ([2][]const u8{ short, long }) |name| {
-        if (std.mem.eql(u8, arg, name)) {
-            if (i.* + 1 < args.len) {
-                i.* += 1;
-                return args[i.*];
-            }
-            return null; // sin valor: se ignora, como argh
-        }
-        if (arg.len > name.len + 1 and std.mem.startsWith(u8, arg, name) and arg[name.len] == '=') {
-            return arg[name.len + 1 ..];
-        }
-    }
-    return null;
-}
-
-fn isFlag(arg: []const u8, short: []const u8, long: []const u8) bool {
-    return std.mem.eql(u8, arg, short) or std.mem.eql(u8, arg, long);
-}
-
-fn parseArgs(args: []const [:0]const u8) Options {
-    var opts = Options{};
-    var i: usize = 1;
-    while (i < args.len) : (i += 1) {
-        const arg = args[i];
-        if (isFlag(arg, "-h", "--help")) {
-            opts.help = true;
-        } else if (isFlag(arg, "-v", "--version")) {
-            opts.version = true;
-        } else if (isFlag(arg, "-nc", "--no-cache")) {
-            opts.nc = true;
-        } else if (std.mem.eql(u8, arg, "--silent")) {
-            opts.silent = true;
-        } else if (takeValue(&i, args, "-f", "--format")) |v| {
-            opts.format = v;
-        } else if (takeValue(&i, args, "-s", "--send")) |v| {
-            opts.send = v;
-        } else if (takeValue(&i, args, "-o", "--output")) |v| {
-            opts.output = v;
-        }
-    }
-    return opts;
+/// `-nc` era el short original de `--no-cache`; z-args Declarative solo
+/// admite shorts de un caracter, asi que se reescribe antes de parsear.
+fn remapLegacyNc(alloc: std.mem.Allocator, args: []const [:0]const u8) ![]const [:0]const u8 {
+    const out = try alloc.alloc([:0]const u8, args.len);
+    for (args, 0..) |a, idx| out[idx] = if (std.mem.eql(u8, a, "-nc")) "--no-cache" else a;
+    return out;
 }
 
 pub fn main(init: std.process.Init) !void {
@@ -76,29 +40,38 @@ pub fn main(init: std.process.Init) !void {
     var stdout_writer: std.Io.File.Writer = .init(.stdout(), io, &stdout_buffer);
     const out = &stdout_writer.interface;
 
-    const args = try init.minimal.args.toSlice(alloc);
-    const opts = parseArgs(args);
+    var it = std.process.Args.Iterator.init(init.minimal.args);
+    const raw_args = try zargs.collectProcessArgs(alloc, &it);
+    const args = try remapLegacyNc(alloc, raw_args);
 
-    if (opts.help) {
+    var diag: Declarative.Diagnostics = .{};
+    const cli = Declarative.parseStruct(Cli, alloc, args, &diag) catch |err| {
+        try out.print("Error: {t}\n\n", .{err});
+        try scrapy.showHelp(out);
+        try out.flush();
+        std.process.exit(1);
+    };
+
+    if (cli.help.value) {
         try scrapy.showHelp(out);
         try out.flush();
         return;
     }
-    if (opts.version) {
+    if (cli.version.value) {
         try scrapy.showVersion(out);
         try out.flush();
         return;
     }
 
-    var scraper = scrapy.Scraper.init(alloc, io, out, opts.format, opts.nc) catch {
+    var scraper = scrapy.Scraper.init(alloc, io, out, cli.format.value, !cli.cache.value) catch {
         out.flush() catch {};
         std.process.exit(1);
     };
     defer scraper.deinit();
 
-    if (opts.send) |url| try scraper.send(url);
-    if (opts.output) |path| try scraper.save(path);
-    if (!opts.silent) try scraper.show();
+    if (cli.send.value.len > 0) try scraper.send(cli.send.value);
+    if (cli.output.value.len > 0) try scraper.save(cli.output.value);
+    if (!cli.silent.value) try scraper.show();
 
     try out.flush();
 }
