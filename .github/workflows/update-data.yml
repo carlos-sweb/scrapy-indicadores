@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '26'
 
       - name: Install dependencies
         run: npm install
@@ -50,7 +50,7 @@ jobs:
           echo "$ip si3.bcentral.cl" | sudo tee -a /etc/hosts
 
       - name: Fetch indicators data
-        run: ./bin/indicadores-x86_64 --silent -o="www-src/data.json"
+        run: ./bin/indicadores-x86_64 --silent -o "www-src/data.json"
 
       - name: Build static files
         run: node www-src/build.js
