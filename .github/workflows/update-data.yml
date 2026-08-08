@@ -103,6 +103,14 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Remove existing github-pages artifact
+        run: |
+          # This removes old artifacts to prevent conflicts
+          gh run download ${{ github.run_id }} --name github-pages -D /tmp/old-artifact 2>/dev/null || true
+          rm -rf /tmp/old-artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
