@@ -165,6 +165,14 @@ indicadores -f=none -s=https://mi-servidor.cl/api/indicadores
 
 [Sitio web desplegado](https://carlos-sweb.github.io/scrapy-indicadores/) — actualizado a diario por GitHub Actions
 
+## 📱 App Android
+
+Los mismos indicadores, como app nativa para el teléfono — hecha con [Lynx](https://lynxjs.org/) y [mithril-lynx](indicadores-app/) (código en [`indicadores-app/`](indicadores-app/) y [`indicadores-android/`](indicadores-android/)).
+
+**[⬇️ Descargar APK (v1.0.0)](https://github.com/carlos-sweb/scrapy-indicadores/releases/download/android-v1.0.0/app-release.apk)**
+
+No está en Google Play, así que es instalación directa (sideload): al abrir el APK descargado, Android va a pedir permiso para instalar desde "fuentes desconocidas" — acéptalo solo para este archivo. Ver la [página de la release](https://github.com/carlos-sweb/scrapy-indicadores/releases/tag/android-v1.0.0) para más detalle.
+
 📬 Contacto
 Para consultas o colaboraciones, contáctame en:
 c4rl0sill3sc4@protonmail.com
