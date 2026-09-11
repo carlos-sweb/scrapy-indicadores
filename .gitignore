@@ -3,3 +3,12 @@ build
 zig-out
 .zig-cache
 zig-pkg
+dist
+
+# indicadores-android (Gradle/Android)
+local.properties
+.gradle/
+.cxx/
+*.jks
+*.keystore
+keystore.properties

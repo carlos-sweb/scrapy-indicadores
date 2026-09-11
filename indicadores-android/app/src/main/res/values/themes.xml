@@ -1,0 +1,19 @@
+<resources>
+
+    <!-- The app's normal theme, used after the splash screen hands off. -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+    <!-- Shown by the OS from process start until installSplashScreen()'s
+         setOnExitAnimationListener/default condition clears — effectively
+         until the LynxView draws its first frame, right now ~700-800ms.
+         android:windowSplashScreenAnimatedIcon reuses the same bar-chart
+         mark as the launcher icon so the transition from tapping the icon
+         to seeing the splash to seeing real content feels like one
+         continuous brand, not three different screens. -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0F1115</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
+
+</resources>

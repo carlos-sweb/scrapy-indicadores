@@ -1,0 +1,303 @@
+/* Custom @font-face (Ubuntu Mono) removed 2026-09-10 after a full
+   investigation: applying it — even just to .Title/.Subtitle, even via CSS
+   inheritance from a single ancestor rule — carries a real, engine-level
+   cold-start cost in Lynx that scales with how many text nodes end up using
+   it (confirmed cross-framework: an equivalently-explicit ReactLynx build
+   of this same UI was just as slow). Not a mithril-lynx bug, not fixable
+   from app code. Reported upstream: https://github.com/lynx-family/lynx/issues/9431
+
+   Re-attempt, same day: a competitor Lynx app ("Indicadores Chile") applies
+   the same Ubuntu family to literally every <text> node (a "text{}" type
+   selector, not per-class) yet cold-starts faster than we ever did even
+   fontless — because it never lets @font-face resolve synchronously during
+   first layout. It prefetches the ttf via a NativeModule call (their own
+   JS-side name: "addFont") in a post-mount effect, so the first frame paints
+   on the sans-serif fallback and swaps to Ubuntu a frame later.
+   This app does the native-side equivalent instead — see MainActivity.kt's
+   FontFaceManager.prefetchFont() call and AssetFontFaceLoader.kt — which
+   fires before renderTemplateUrl() even runs, so if the prefetch wins the
+   race there should be no visible fallback flash at all. Testing broadly
+   (text{} below, not just 2 nodes) specifically to check whether prefetching
+   actually fixes the underlying per-node scaling cost, or only hides it. */
+text {
+  font-family: "Ubuntu Mono", sans-serif;
+}
+
+@font-face {
+  font-family: "Ubuntu Mono";
+  src: url("asset:///fonts/ubuntu_mono.ttf");
+}
+
+/* Entrance animation — opacity/transform only (GPU-accelerated, per
+   lynx-api-docs's own performance guidance), short enough (200-300ms) that
+   it reads as a polish flourish rather than a delay layered on top of the
+   ~750ms cold start this app already has. Plays once: mithril's keyed diff
+   reuses the same DOM nodes across redraws (theme toggle, data refresh), so
+   this never replays after first paint — see index.ts's own header comment
+   on animationDelay for the per-card stagger. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.Page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #0f1115 0%, #171a21 100%);
+  padding: 24px 16px 36px 16px;
+  opacity: 0;
+  animation: fade-in 0.25s ease-out forwards;
+}
+
+.Header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.Title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.Subtitle {
+  font-size: 14px;
+  color: #9aa0ac;
+  margin-top: 4px;
+}
+
+.List {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.Card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 18px 16px;
+  margin-bottom: 10px;
+  opacity: 0;
+  animation: fade-in-up 0.3s ease-out forwards;
+  /* animation-delay is set per-card, inline, from index.ts — Lynx doesn't
+     support :nth-child() (confirmed against lynx-api-docs), so the stagger
+     can't be expressed in CSS alone. */
+}
+
+.Card-label {
+  font-size: 19px;
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+}
+
+.Card-value {
+  font-size: 23px;
+  font-weight: 700;
+  color: #6ee7b7;
+  margin-right: 8px;
+}
+
+.Card-unit {
+  font-size: 14px;
+  color: #9aa0ac;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.Skeleton-label {
+  width: 80px;
+  height: 19px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.12);
+  animation: skeleton-pulse 1.1s ease-in-out infinite;
+}
+
+.Skeleton-value {
+  width: 100px;
+  height: 23px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.12);
+  animation: skeleton-pulse 1.1s ease-in-out infinite;
+}
+
+.StateBox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.StateBox-text {
+  font-size: 16px;
+  color: #9aa0ac;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.StateBox-text--error {
+  color: #fca5a5;
+}
+
+.Footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.Footer-updated {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.Footer-source {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 14px;
+}
+
+.Button {
+  background-color: #3b82f6;
+  border-radius: 10px;
+  padding: 12px 24px;
+}
+
+.Button--secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.Button-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.TopBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+.ThemeToggle {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 8px 14px;
+}
+
+.ThemeToggle-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Light mode — every rule above stays the dark default; these "--light"
+   modifier classes are appended (never swapped in) by withTheme() in
+   src/index.ts, so this file is the only place that needs to know both
+   palettes exist. */
+
+.Page--light {
+  background: linear-gradient(180deg, #f5f7fa 0%, #eef1f6 100%);
+}
+
+.Title--light {
+  color: #111827;
+}
+
+.Subtitle--light {
+  color: #6b7280;
+}
+
+.Card--light {
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.Card-label--light {
+  color: #111827;
+}
+
+.Card-value--light {
+  color: #059669;
+}
+
+.Card-unit--light {
+  color: #6b7280;
+}
+
+.Skeleton-label--light {
+  background-color: rgba(15, 23, 42, 0.08);
+}
+
+.Skeleton-value--light {
+  background-color: rgba(15, 23, 42, 0.08);
+}
+
+.StateBox-text--light {
+  color: #6b7280;
+}
+
+.StateBox-text--error--light {
+  color: #dc2626;
+}
+
+.Footer-updated--light {
+  color: #9ca3af;
+}
+
+.Footer-source--light {
+  color: #9ca3af;
+}
+
+.Button--light {
+  background-color: #2563eb;
+}
+
+.Button--secondary--light {
+  background-color: rgba(15, 23, 42, 0.08);
+}
+
+.Button-label--secondary--light {
+  color: #111827;
+}
+
+.ThemeToggle--light {
+  background-color: rgba(15, 23, 42, 0.06);
+}
+
+.ThemeToggle-label--light {
+  color: #111827;
+}

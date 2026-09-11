@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    // Explicit, not left to the TS-version-dependent default (which can be
+    // as old as ES3 and lacks e.g. Object.assign) — confirmed necessary
+    // by a real build failure with a newer/older typescript version.
+    "target": "ES2022",
+    "lib": ["ES2023"]
+  },
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    { "path": "./src" }
+  ],
+  "files": []
+}
