@@ -173,6 +173,14 @@ Los mismos indicadores, como app nativa para el teléfono — hecha con [Lynx](h
 
 No está en Google Play, así que es instalación directa (sideload): al abrir el APK descargado, Android va a pedir permiso para instalar desde "fuentes desconocidas" — acéptalo solo para este archivo. Ver la [página de la release](https://github.com/carlos-sweb/scrapy-indicadores/releases/tag/android-v1.0.0) para más detalle.
 
+### Probar sin instalar, con Lynx Explorer
+
+Si ya tienes [Lynx Explorer](https://lynxjs.org/guide/start/quick-start.html) instalado, escanea este QR para abrir la app directamente, sin instalar nada:
+
+<img src="image/lynx-explorer-qr.png" alt="QR del bundle Lynx de Indicadores" width="220" />
+
+Apunta al bundle compilado ([`main-thread.bundle`](https://github.com/carlos-sweb/scrapy-indicadores/releases/download/android-v1.0.0/main-thread.bundle), publicado como asset de la release). Es la forma más rápida de probar la interfaz, pero corriendo dentro de Explorer (no de esta app nativa) pierde dos cosas propias del APK: la fuente Ubuntu Mono (cae al system font — Explorer no tiene el asset ni el fix nativo descrito en [indicadores-android/](indicadores-android/)) y la caché diaria/persistencia del tema (Explorer no registra el módulo nativo de storage de esta app).
+
 📬 Contacto
 Para consultas o colaboraciones, contáctame en:
 c4rl0sill3sc4@protonmail.com
