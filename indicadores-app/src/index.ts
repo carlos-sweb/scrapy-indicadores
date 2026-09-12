@@ -73,13 +73,21 @@ function withTheme(classNames: string): string {
     .join(" ");
 }
 
+// Not `.toLocaleString("es-CL")`: the Lynx main-thread engine's Intl support
+// is unreliable (same class of gap as Array.prototype.at() — see
+// mithril-lynx's AGENTS.md), and in practice this rendered a nonsensical
+// MM/DD/YYYY-ish date instead of a real es-CL one. Also no need for a full
+// date at all: background.ts's cache is keyed by calendar day (todayKey()),
+// so `updatedAt` is unconditionally re-fetched (loadIndicadores()) the
+// moment it's not from today — this timestamp is ALWAYS today's, never
+// "Ayer" or older. Showing just the time avoids both problems.
 function formatUpdatedAt(timestamp: number | undefined): string {
   if (timestamp == null) return "";
-  try {
-    return new Date(timestamp).toLocaleString("es-CL");
-  } catch {
-    return new Date(timestamp).toISOString();
-  }
+  const d = new Date(timestamp);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  const ss = String(d.getSeconds()).padStart(2, "0");
+  return `Hoy, ${hh}:${mm}:${ss}`;
 }
 
 const MESES = [
