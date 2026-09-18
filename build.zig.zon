@@ -4,9 +4,9 @@
     .fingerprint = 0xb1e9f9af0a76583a,
     .minimum_zig_version = "0.16.0",
     .dependencies = .{
-        .lexbor = .{
-            .url = "https://github.com/lexbor/lexbor/archive/refs/tags/v2.7.0.tar.gz",
-            .hash = "N-V-__8AAFW4qwJZyWdOa6_v_vAWQ3N4X4bXIryk3MO2uBKT",
+        .z_lexbor = .{
+            .url = "https://github.com/carlos-sweb/z-lexbor/archive/refs/heads/main.tar.gz",
+            .hash = "z_lexbor-0.2.0-W3VFaejVSwFpqwakg4_kcwxO5D05o67Tzu_0W0ZJUIqJ",
         },
         .zargs = .{
             .url = "https://github.com/carlos-sweb/z-args/archive/70de6cf399bdf5333f9b41e8b369ae1bea6af44d.tar.gz",

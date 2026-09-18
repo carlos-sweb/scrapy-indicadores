@@ -16,22 +16,12 @@ pub fn build(b: *std.Build) void {
     build_options.addOption([]const u8, "install_bin_dir", install_bin_dir);
 
     // ------------------------------------------------------------------
-    // lexbor: lib estatica compilada desde el tarball declarado en
-    // build.zig.zon (C puro + port posix). La lista de fuentes es la
-    // misma sin importar el target, asi que se recolecta una sola vez.
-    // ------------------------------------------------------------------
-    const lexbor_dep = b.dependency("lexbor", .{});
-    const lexbor_sources = collectLexborSources(b, lexbor_dep);
-
-    // ------------------------------------------------------------------
     // Build normal: target/optimize elegidos por linea de comandos
     // (nativo por defecto).
     // ------------------------------------------------------------------
     const main_build = buildIndicadores(b, .{
         .target = target,
         .optimize = optimize,
-        .lexbor_dep = lexbor_dep,
-        .lexbor_sources = lexbor_sources,
         .build_options = build_options,
     });
     b.installArtifact(main_build.exe);
@@ -43,21 +33,20 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
 
     // ------------------------------------------------------------------
-    // Tests (logica pura: cleanValue, toLowercase, etc.) -- reusa el
-    // lexbor/translate-c del build normal.
+    // Tests (logica pura: cleanValue, toLowercase, etc.).
     // ------------------------------------------------------------------
+    const z_lexbor_dep = b.dependency("z_lexbor", .{ .target = target, .optimize = optimize });
+
     const test_mod = b.createModule(.{
         .root_source_file = b.path("src/scrapy.zig"),
         .target = target,
         .optimize = optimize,
-        .link_libc = true,
         .imports = &.{
-            .{ .name = "c", .module = main_build.translate_c.createModule() },
+            .{ .name = "z_lexbor", .module = z_lexbor_dep.module("z_lexbor") },
         },
     });
     test_mod.addOptions("build_options", build_options);
     const unit_tests = b.addTest(.{ .root_module = test_mod });
-    unit_tests.root_module.linkLibrary(main_build.lexbor_lib);
 
     const run_tests = b.addRunArtifact(unit_tests);
     const test_step = b.step("test", "Corre los tests unitarios");
@@ -80,8 +69,6 @@ pub fn build(b: *std.Build) void {
     const musl_build = buildIndicadores(b, .{
         .target = musl_target,
         .optimize = .ReleaseSmall,
-        .lexbor_dep = lexbor_dep,
-        .lexbor_sources = lexbor_sources,
         .build_options = build_options,
     });
 
@@ -93,45 +80,19 @@ pub fn build(b: *std.Build) void {
 
 const IndicadoresBuild = struct {
     exe: *std.Build.Step.Compile,
-    lexbor_lib: *std.Build.Step.Compile,
-    translate_c: *std.Build.Step.TranslateC,
 };
 
 const BuildOpts = struct {
     target: std.Build.ResolvedTarget,
     optimize: std.builtin.OptimizeMode,
-    lexbor_dep: *std.Build.Dependency,
-    lexbor_sources: []const []const u8,
     build_options: *std.Build.Step.Options,
 };
 
-/// Arma lexbor + el modulo "c" (translate-c) + el ejecutable "indicadores"
-/// para un target/optimize dados. Factorizado para poder repetirlo con un
-/// target distinto (`exe-musl`) sin duplicar la definicion del build.
+/// Arma el ejecutable "indicadores" para un target/optimize dados.
+/// Factorizado para poder repetirlo con un target distinto (`exe-musl`)
+/// sin duplicar la definicion del build.
 fn buildIndicadores(b: *std.Build, opts: BuildOpts) IndicadoresBuild {
-    const lexbor_lib = b.addLibrary(.{
-        .name = "lexbor",
-        .linkage = .static,
-        .root_module = b.createModule(.{
-            .target = opts.target,
-            .optimize = opts.optimize,
-            .link_libc = true,
-        }),
-    });
-    lexbor_lib.root_module.addIncludePath(opts.lexbor_dep.path("source"));
-    lexbor_lib.root_module.addCSourceFiles(.{
-        .root = opts.lexbor_dep.path("source"),
-        .files = opts.lexbor_sources,
-        .flags = &.{"-std=c99"},
-    });
-
-    const translate_c = b.addTranslateC(.{
-        .root_source_file = b.path("src/c.h"),
-        .target = opts.target,
-        .optimize = opts.optimize,
-    });
-    translate_c.addIncludePath(opts.lexbor_dep.path("source"));
-
+    const z_lexbor_dep = b.dependency("z_lexbor", .{ .target = opts.target, .optimize = opts.optimize });
     const zargs_dep = b.dependency("zargs", .{ .target = opts.target, .optimize = opts.optimize });
 
     const exe_mod = b.createModule(.{
@@ -140,58 +101,16 @@ fn buildIndicadores(b: *std.Build, opts: BuildOpts) IndicadoresBuild {
         .optimize = opts.optimize,
         .link_libc = true,
         .imports = &.{
-            .{ .name = "c", .module = translate_c.createModule() },
+            .{ .name = "z_lexbor", .module = z_lexbor_dep.module("z_lexbor") },
             .{ .name = "zargs", .module = zargs_dep.module("zargs") },
         },
     });
     exe_mod.addOptions("build_options", opts.build_options);
-    exe_mod.linkLibrary(lexbor_lib);
 
     const exe = b.addExecutable(.{
         .name = "indicadores",
         .root_module = exe_mod,
     });
 
-    return .{ .exe = exe, .lexbor_lib = lexbor_lib, .translate_c = translate_c };
-}
-
-/// Enumera los .c de lexbor en tiempo de configuracion: todos los modulos
-/// mas el port posix (se excluye ports/, que tiene su propia seleccion).
-fn collectLexborSources(b: *std.Build, dep: *std.Build.Dependency) []const []const u8 {
-    const io = b.graph.io;
-    var files: std.ArrayList([]const u8) = .empty;
-
-    const source_root = dep.path("source").getPath2(b, null);
-    var dir = std.Io.Dir.openDirAbsolute(io, source_root, .{ .iterate = true }) catch |err| {
-        std.debug.panic("no se pudo abrir {s}: {t}", .{ source_root, err });
-    };
-    defer dir.close(io);
-
-    var walker = dir.walk(b.allocator) catch @panic("OOM");
-    defer walker.deinit();
-
-    while (walker.next(io) catch @panic("walk lexbor")) |entry| {
-        if (entry.kind != .file) continue;
-        if (!std.mem.endsWith(u8, entry.path, ".c")) continue;
-        if (std.mem.indexOf(u8, entry.path, "ports/") != null) continue;
-        files.append(b.allocator, b.dupe(entry.path)) catch @panic("OOM");
-    }
-
-    // Port posix (fs, memory, perf, ...)
-    const posix_port = "lexbor/ports/posix";
-    var port_dir = dir.openDir(io, posix_port, .{ .iterate = true }) catch |err| {
-        std.debug.panic("no se pudo abrir el port posix: {t}", .{err});
-    };
-    defer port_dir.close(io);
-
-    var port_walker = port_dir.walk(b.allocator) catch @panic("OOM");
-    defer port_walker.deinit();
-
-    while (port_walker.next(io) catch @panic("walk posix port")) |entry| {
-        if (entry.kind != .file) continue;
-        if (!std.mem.endsWith(u8, entry.path, ".c")) continue;
-        files.append(b.allocator, b.fmt("{s}/{s}", .{ posix_port, entry.path })) catch @panic("OOM");
-    }
-
-    return files.toOwnedSlice(b.allocator) catch @panic("OOM");
+    return .{ .exe = exe };
 }

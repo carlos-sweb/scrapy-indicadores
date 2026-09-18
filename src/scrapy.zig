@@ -1,14 +1,14 @@
 //! Port a Zig de scrapycpp.cpp: scraper de indicadores economicos
-//! del Banco Central de Chile (lexbor + ada + libcurl).
+//! del Banco Central de Chile (z-lexbor + std.http.Client).
 const std = @import("std");
+const lexbor = @import("z_lexbor");
 const build_options = @import("build_options");
-pub const c = @import("c");
 
 const Allocator = std.mem.Allocator;
 const Io = std.Io;
 const Writer = std.Io.Writer;
 
-pub const version = "0.1.0";
+pub const version = "0.2.0";
 pub const url_central = "https://si3.bcentral.cl/Indicadoressiete/secure/Indicadoresdiarios.aspx";
 
 pub const months_es = [12][]const u8{
@@ -80,13 +80,17 @@ pub fn cleanValue(alloc: Allocator, value: []const u8) ![]const u8 {
 }
 
 /// Fecha actual en espanol: "DD de Mes YYYY".
-pub fn getDateText(alloc: Allocator) ![]const u8 {
-    var t: c.time_t = c.time(null);
-    const now = c.localtime(&t);
+pub fn getDateText(alloc: Allocator, io: Io) ![]const u8 {
+    const ts = std.Io.Clock.real.now(io);
+    const epoch_seconds = std.time.epoch.EpochSeconds{ .secs = @intCast(ts.toSeconds()) };
+    const epoch_day = epoch_seconds.getEpochDay();
+    const year_and_day = epoch_day.calculateYearDay();
+    const month_and_day = year_and_day.calculateMonthDay();
+
     return std.fmt.allocPrint(alloc, "{d:0>2} de {s} {d}", .{
-        @as(u32, @intCast(now.*.tm_mday)),
-        months_es[@intCast(now.*.tm_mon)],
-        now.*.tm_year + 1900,
+        month_and_day.day_index + 1, // day_index es 0-based
+        months_es[@intCast(month_and_day.month.numeric() - 1)],
+        year_and_day.year,
     });
 }
 
@@ -98,52 +102,48 @@ pub fn isFormatAccepted(format: []const u8) bool {
 }
 
 // ---------------------------------------------------------------------------
-// DOM (lexbor)
+// DOM (z-lexbor wrapper)
 // ---------------------------------------------------------------------------
 
 pub const Dom = struct {
-    doc: *c.lxb_html_document_t,
-    body: *c.lxb_dom_element_t,
+    parser: lexbor.html.Parser,
+    engine: lexbor.selectors.Engine,
+    doc: lexbor.html.Document,
 
-    pub fn parse(html: []const u8) error{ DocCreate, ParseFail, NoBody }!Dom {
-        const doc = c.lxb_html_document_create() orelse return error.DocCreate;
-        errdefer _ = c.lxb_html_document_destroy(doc);
+    /// Parsea un HTML completo. El parser y el engine de selectores son RAII:
+    /// `deinit` los libera a ambos (y el documento con ellos).
+    pub fn parse(html: []const u8) !Dom {
+        var parser = try lexbor.html.Parser.createInit();
+        errdefer parser.deinit();
 
-        if (c.lxb_html_document_parse(doc, html.ptr, html.len) != c.LXB_STATUS_OK)
-            return error.ParseFail;
+        var engine = try lexbor.selectors.Engine.createInit();
+        errdefer engine.deinit();
 
-        const body: *c.lxb_dom_element_t = @ptrCast(doc.*.body orelse return error.NoBody);
-        return .{ .doc = doc, .body = body };
+        const doc = try parser.parse(html);
+        // Verificar que el documento tiene un nodo raiz (equivalente al check
+        // de body != null del codigo original).
+        _ = doc.rootNode() orelse return error.NoBody;
+
+        return .{ .parser = parser, .engine = engine, .doc = doc };
     }
 
     pub fn deinit(self: *Dom) void {
-        _ = c.lxb_html_document_destroy(self.doc);
+        self.engine.deinit();
+        self.parser.deinit();
     }
 
     /// Texto del elemento con el atributo id dado, o null si no existe.
+    /// Usa el motor de selectores CSS de lexbor (querySelector sobre `#id`).
     pub fn getElementById(self: *Dom, alloc: Allocator, id: []const u8) !?[]const u8 {
-        const coll = c.lxb_dom_collection_make(&self.doc.*.dom_document, 128) orelse
-            return error.OutOfMemory;
-        defer _ = c.lxb_dom_collection_destroy(coll, true);
+        const root = self.doc.rootNode() orelse return null;
 
-        const status = c.lxb_dom_elements_by_attr(self.body, coll, "id", 2, id.ptr, id.len, true);
-        if (status != c.LXB_STATUS_OK or c.lxb_dom_collection_length(coll) == 0)
-            return null;
+        // Selector CSS "#elId" — los IDs tienen max 15 chars, 32 bytes alcanza.
+        var selector_buf: [32]u8 = undefined;
+        const selector = std.fmt.bufPrint(&selector_buf, "#{s}", .{id}) catch return null;
 
-        return try getText(alloc, c.lxb_dom_collection_element(coll, 0));
-    }
-
-    fn getText(alloc: Allocator, element: [*c]c.lxb_dom_element_t) ![]const u8 {
-        var text: std.ArrayList(u8) = .empty;
-        var node: [*c]c.lxb_dom_node_t = c.lxb_dom_node_first_child(@ptrCast(element));
-        while (node != null) : (node = c.lxb_dom_node_next(node)) {
-            if (node.*.type == c.LXB_DOM_NODE_TYPE_TEXT) {
-                var len: usize = 0;
-                const data = c.lxb_dom_node_text_content(node, &len);
-                try text.appendSlice(alloc, data[0..len]);
-            }
-        }
-        return text.toOwnedSlice(alloc);
+        const node = (self.engine.queryFirst(root, selector) catch return null) orelse return null;
+        const text = node.textContent();
+        return try alloc.dupe(u8, text);
     }
 };
 
@@ -230,9 +230,10 @@ pub const Scraper = struct {
 
         var dom = Dom.parse(html) catch |err| {
             const msg = switch (err) {
-                error.DocCreate => "No se pudo crear el documento HTML",
-                error.ParseFail => "Error al parsear el documento HTML",
+                error.OutOfMemory => "No se pudo crear el documento HTML",
+                error.LexborError => "Error al parsear el documento HTML",
                 error.NoBody => "No se pudo obtener el body del documento",
+                else => "Error inesperado en el parser",
             };
             try out.print(red ++ "{s}" ++ reset ++ ": {s}\n", .{ "Error", msg });
             return err;
@@ -302,7 +303,7 @@ pub const Scraper = struct {
 
     fn showTableFormat(self: *Scraper) !void {
         try self.out.print("+{s:-^30}+\n", .{"+"});
-        try self.out.print("|" ++ green ++ "{s:^30}" ++ reset ++ "|\n", .{try getDateText(self.alloc)});
+        try self.out.print("|" ++ green ++ "{s:^30}" ++ reset ++ "|\n", .{try getDateText(self.alloc, self.io)});
         try self.out.print("+{s:-^30}+\n", .{"+"});
         for (self.values.items) |v| {
             try self.out.print("| " ++ green ++ "{s:<13}" ++ reset ++ "|" ++ yellow ++ "{s:>14}" ++ reset ++ " |\n", .{ v.name, v.value });
@@ -366,14 +367,17 @@ pub const Scraper = struct {
     /// Carga el HTML del Banco Central, usando la cache diaria en
     /// INSTALL_BIN_DIR/.scrapy-indicadores (paridad con el original).
     fn loadContentFromBCentral(alloc: Allocator, io: Io, out: *Writer, nc_flag: bool) ![]const u8 {
-        var t: c.time_t = c.time(null);
-        const now = c.localtime(&t).*;
+        const ts = std.Io.Clock.real.now(io);
+        const epoch_seconds = std.time.epoch.EpochSeconds{ .secs = @intCast(ts.toSeconds()) };
+        const epoch_day = epoch_seconds.getEpochDay();
+        const year_and_day = epoch_day.calculateYearDay();
+        const month_and_day = year_and_day.calculateMonthDay();
 
         const cache_dir = build_options.install_bin_dir ++ "/.scrapy-indicadores";
         const cache_path = try std.fmt.allocPrint(alloc, cache_dir ++ "/{d:0>2}-{d:0>2}-{d:0>4}.html", .{
-            @as(u32, @intCast(now.tm_mday)),
-            @as(u32, @intCast(now.tm_mon + 1)),
-            @as(u32, @intCast(now.tm_year + 1900)),
+            month_and_day.day_index + 1,
+            month_and_day.month.numeric(),
+            year_and_day.year,
         });
 
         const cwd = Io.Dir.cwd();
