@@ -10,11 +10,10 @@
     "preview": "rspeedy preview"
   },
   "dependencies": {
-    "mithril": "2.3.8",
-    "mithril-lynx": "^0.0.3"
+    "mithril-lynx": "^2.6.0",
+    "mithril-runtime": "^1.1.0"
   },
   "devDependencies": {
-    "@lynx-js/config-rsbuild-plugin": "^0.2.0",
     "@lynx-js/qrcode-rsbuild-plugin": "^0.7.0",
     "@lynx-js/rspeedy": "^0.17.0",
     "@lynx-js/template-webpack-plugin": "^0.16.0",
@@ -22,6 +21,7 @@
     "@lynx-js/types": "4.1.0",
     "@rsbuild/plugin-type-check": "^1.6.0",
     "@types/mithril": "^2.2.9",
+    "mithril": "2.3.8",
     "typescript": "~5.9.0"
   },
   "engines": {

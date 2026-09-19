@@ -7,7 +7,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.lynx.tasm.LynxBooleanOption
 import com.lynx.tasm.LynxViewBuilder
 import com.lynx.tasm.ThreadStrategyForRendering
-import com.lynx.tasm.fontface.FontFaceManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -45,27 +44,6 @@ class MainActivity : AppCompatActivity() {
         builder.setTemplateProvider(AssetTemplateProvider(this))
         val lynxView = builder.build(this)
         setContentView(lynxView)
-
-        // Prefetch the custom font on Lynx's own IO thread pool as early as
-        // possible — before renderTemplateUrl() below ever gives the JS
-        // bundle's CSS a chance to trigger @font-face resolution during the
-        // first layout. FontFaceManager caches by the exact "src" string
-        // (see srcKey()/cachePrefetchedTypeface() in lynx-4.1.0.aar), so this
-        // "asset:///fonts/ubuntu_mono.ttf" URI must match style.css's
-        // @font-face src url() byte-for-byte for the later real lookup to
-        // hit this warmed cache entry instead of resolving cold, synchronously,
-        // inside __FlushElementTree() — see https://github.com/lynx-family/lynx/issues/9431.
-        // Requires AssetFontFaceLoader (IndicadoresApp.kt) to be registered —
-        // without it "asset:///" isn't resolvable by either this prefetch or
-        // the real @font-face lookup.
-        FontFaceManager.getInstance().prefetchFont(
-            lynxView.lynxContext,
-            "asset:///fonts/ubuntu_mono.ttf",
-            null,
-            object : FontFaceManager.FontFacePrefetchListener {
-                override fun onComplete(code: Int, msg: String) {}
-            },
-        )
 
         // IFR (https://lynxjs.org/next/guide/interaction/ifr.html): read
         // both today's cached data.json AND the last saved theme

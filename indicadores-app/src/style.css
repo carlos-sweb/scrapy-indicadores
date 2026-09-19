@@ -1,31 +1,5 @@
-/* Custom @font-face (Ubuntu Mono) removed 2026-09-10 after a full
-   investigation: applying it — even just to .Title/.Subtitle, even via CSS
-   inheritance from a single ancestor rule — carries a real, engine-level
-   cold-start cost in Lynx that scales with how many text nodes end up using
-   it (confirmed cross-framework: an equivalently-explicit ReactLynx build
-   of this same UI was just as slow). Not a mithril-lynx bug, not fixable
-   from app code. Reported upstream: https://github.com/lynx-family/lynx/issues/9431
-
-   Re-attempt, same day: a competitor Lynx app ("Indicadores Chile") applies
-   the same Ubuntu family to literally every <text> node (a "text{}" type
-   selector, not per-class) yet cold-starts faster than we ever did even
-   fontless — because it never lets @font-face resolve synchronously during
-   first layout. It prefetches the ttf via a NativeModule call (their own
-   JS-side name: "addFont") in a post-mount effect, so the first frame paints
-   on the sans-serif fallback and swaps to Ubuntu a frame later.
-   This app does the native-side equivalent instead — see MainActivity.kt's
-   FontFaceManager.prefetchFont() call and AssetFontFaceLoader.kt — which
-   fires before renderTemplateUrl() even runs, so if the prefetch wins the
-   race there should be no visible fallback flash at all. Testing broadly
-   (text{} below, not just 2 nodes) specifically to check whether prefetching
-   actually fixes the underlying per-node scaling cost, or only hides it. */
 text {
-  font-family: "Ubuntu Mono", sans-serif;
-}
-
-@font-face {
-  font-family: "Ubuntu Mono";
-  src: url("asset:///fonts/ubuntu_mono.ttf");
+  font-family: "Ubuntu Mono Regular", sans-serif;
 }
 
 /* Entrance animation — opacity/transform only (GPU-accelerated, per
@@ -125,22 +99,20 @@ text {
   color: #9aa0ac;
 }
 
-@keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
+/* Pulse via `transition`, not `@keyframes` — @keyframes needs
+   enableCSSRule, which we deliberately don't set (see lynx.config.ts's own
+   comment). `transition` is a plain property, not an at-rule, so it
+   compiles and runs with no such requirement. index.ts toggles
+   state.pulseOn on a plain setInterval() while the skeleton is showing and
+   writes the resulting opacity as an inline style on each of these two
+   elements; this rule just makes that inline flip animate instead of
+   jumping. */
 .Skeleton-label {
   width: 80px;
   height: 19px;
   border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.12);
-  animation: skeleton-pulse 1.1s ease-in-out infinite;
+  transition: opacity 0.55s ease-in-out;
 }
 
 .Skeleton-value {
@@ -148,7 +120,7 @@ text {
   height: 23px;
   border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.12);
-  animation: skeleton-pulse 1.1s ease-in-out infinite;
+  transition: opacity 0.55s ease-in-out;
 }
 
 .StateBox {
