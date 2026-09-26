@@ -1,19 +1,24 @@
 {
   "name": "indicadores-app",
-  "version": "0.0.1",
+  "version": "1.0.2",
   "description": "Indicadores económicos del Banco Central de Chile (UF, dólar, euro, yen, oro, plata, cobre), vía scrapy-indicadores, en un Lynx app de una página con mithril-lynx.",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "rspeedy dev",
     "build": "rspeedy build",
-    "preview": "rspeedy preview"
+    "preview": "rspeedy preview",
+    "android": "node scripts/android.mjs",
+    "android:apk": "node scripts/android.mjs --apk",
+    "android:release": "node scripts/android.mjs --release",
+    "android:sync": "node scripts/android.mjs --sync-only"
   },
   "dependencies": {
-    "mithril-lynx": "^2.6.0",
+    "mithril-lynx": "^3.0.0",
     "mithril-runtime": "^1.1.0"
   },
   "devDependencies": {
+    "@lynx-js/config-rsbuild-plugin": "^0.2.4",
     "@lynx-js/qrcode-rsbuild-plugin": "^0.7.0",
     "@lynx-js/rspeedy": "^0.17.0",
     "@lynx-js/template-webpack-plugin": "^0.16.0",

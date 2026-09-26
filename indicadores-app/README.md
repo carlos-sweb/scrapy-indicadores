@@ -10,18 +10,23 @@ https://raw.githubusercontent.com/carlos-sweb/scrapy-indicadores/refs/heads/mast
 
 ```bash
 npm install
-npm run dev      # scan the printed QR code with LynxExplorer
-npm run build     # production bundle, in dist/
+npm run dev               # scan the printed QR code with LynxExplorer
+npm run build             # production bundle, in dist/
+npm run android           # build + copy into ../indicadores-android + install and launch (debug)
+npm run android:release   # build + copy + signed release APK
 ```
+
+`npm run android*` is `scripts/android.mjs`, adapted from `create-mithril-lynx`'s template: it copies `dist/main-thread.bundle` and `dist/static/` (the font) into `../indicadores-android/app/src/main/assets/`. Release signing needs `../indicadores-android/keystore.properties` (gitignored) pointing at the app's existing release keystore — an update must be signed with the same key as the published APK, so never generate a new one.
 
 ## How it's wired
 
-This app uses `mithril-lynx`'s **data-channel mode**, not the simpler main-thread-owned mode most templates use — because `lynx.fetch()` only exists on the background/JS thread (there is no networking API on Lynx's main thread, and Mithril's own `m.request` can't fill the gap either — it's hard-wired to a real `XMLHttpRequest`, which doesn't exist in Lynx's runtime; see `mithril-lynx/README.md`'s "Known gap, not permanent" section):
+Built on `mithril-lynx` 3.x. Only the background (JS) thread runs app code; the main thread just replays the patches (see `mithril-lynx`'s README):
 
-- `src/background.ts` — sibling of `main-thread.ts`, auto-detected as a second bundle chunk by `mithril-lynx/plugin`. Fetches `data.json` with `lynx.fetch()` on load and on every `"refresh"` request from the UI, and pushes the result to the main thread with `setData()`.
-- `src/main-thread.ts` — mounts the Mithril root once via `setupApp()`; every later `background.ts` push flows through the shim's own `redraw()`.
-- `src/index.ts` — the UI: a title, a loading/error state, a card per indicator, and a "Refrescar" button that calls `dispatchToBackground("refresh")`.
+- `src/main-thread.ts` — `setupRenderer()`, nothing app-specific.
+- `src/background.ts` — `renderApp({ root })` with the app from `index.ts`.
+- `src/index.ts` — the whole app: state, the `data.json` fetch through `mithril-lynx/request`, a day-based cache and the theme in `IndicadoresStorageModule` (a SharedPreferences NativeModule registered by the Android host), and the view (a card per indicator, a "Refrescar" button, the light/dark toggle).
+- The Ubuntu Sans Mono font is imported by `index.ts` and registered with `lynx.addFont()`; `output.assetPrefix: "asset:///"` (`lynx.config.ts`) makes the production bundle load it from the APK's assets, resolved by the host's `AssetFontFaceLoader`.
 
 ## Learn more
 
-Everything about the framework — the three rendering modes, data-channel mode, refs, gestures, navigation — is documented in [`mithril-lynx`'s own README](https://github.com/carlos-sweb/mithril-lynx#readme).
+Everything about the framework is documented in [`mithril-lynx`'s own README](https://github.com/carlos-sweb/mithril-lynx#readme).
