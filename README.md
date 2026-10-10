@@ -35,16 +35,19 @@ La versión original estaba escrita en **C++** (cpr, ada, argh, c_print). En jul
 ## 🛠️ Instalación
 
 ### **Prerrequisitos**
-- [Zig](https://ziglang.org/) 0.16.0 o superior — nada más
+- [Zig](https://ziglang.org/) 0.17.0 (fijado en `mise.toml`; requerido por z-lexbor 0.3.0)
 
 La única dependencia externa se resuelve sola al compilar:
-- [LEXBOR](https://lexbor.com/) — se descarga automáticamente vía `build.zig.zon` (hash verificado)
+- [z-lexbor 0.3.0](https://github.com/carlos-sweb/z-lexbor/releases/tag/v0.3.0), con [LEXBOR](https://lexbor.com/) incluido — se descarga automáticamente vía `build.zig.zon` (hash verificado)
 
 ### **Compilar**
 
 ```sh
-# Compilar (el binario queda en zig-out/bin/indicadores)
+# Compilar para uso local (el binario queda en zig-out/bin/indicadores)
 zig build -Doptimize=ReleaseSafe
+
+# Verificar el ejecutable generado
+./zig-out/bin/indicadores --version
 
 # Correr los tests
 zig build test
@@ -71,8 +74,7 @@ El workflow diario **no compila**: ejecuta el binario musl-estático commiteado 
 ⚠️ **Después de cambiar el código hay que regenerarlo y commitearlo junto al cambio:**
 
 ```sh
-zig build -Dtarget=x86_64-linux-musl -Doptimize=ReleaseSmall
-cp zig-out/bin/indicadores bin/indicadores-x86_64
+zig build exe-musl
 git add bin/indicadores-x86_64
 ```
 

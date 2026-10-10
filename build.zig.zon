@@ -2,11 +2,11 @@
     .name = .indicadores,
     .version = "0.2.0",
     .fingerprint = 0xb1e9f9af0a76583a,
-    .minimum_zig_version = "0.16.0",
+    .minimum_zig_version = "0.17.0",
     .dependencies = .{
         .z_lexbor = .{
-            .url = "https://github.com/carlos-sweb/z-lexbor/archive/refs/heads/main.tar.gz",
-            .hash = "z_lexbor-0.2.0-W3VFaejVSwFpqwakg4_kcwxO5D05o67Tzu_0W0ZJUIqJ",
+            .url = "https://github.com/carlos-sweb/z-lexbor/archive/refs/tags/v0.3.0.tar.gz",
+            .hash = "z_lexbor-0.3.0-W3VFaYXfSwEAOEbw89laZG6WV0dW2XrLnSbRk-qN2dpC",
         },
         .zargs = .{
             .url = "https://github.com/carlos-sweb/z-args/archive/70de6cf399bdf5333f9b41e8b369ae1bea6af44d.tar.gz",

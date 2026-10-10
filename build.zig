@@ -28,7 +28,7 @@ pub fn build(b: *std.Build) void {
 
     const run_cmd = b.addRunArtifact(main_build.exe);
     run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| run_cmd.addArgs(args);
+    run_cmd.addPassthruArgs();
     const run_step = b.step("run", "Ejecuta el scraper");
     run_step.dependOn(&run_cmd.step);
 
@@ -36,13 +36,15 @@ pub fn build(b: *std.Build) void {
     // Tests (logica pura: cleanValue, toLowercase, etc.).
     // ------------------------------------------------------------------
     const z_lexbor_dep = b.dependency("z_lexbor", .{ .target = target, .optimize = optimize });
+    const zargs_dep = b.dependency("zargs", .{ .target = target, .optimize = optimize });
 
     const test_mod = b.createModule(.{
-        .root_source_file = b.path("src/scrapy.zig"),
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
         .imports = &.{
             .{ .name = "z_lexbor", .module = z_lexbor_dep.module("z_lexbor") },
+            .{ .name = "zargs", .module = b.createModule(.{ .root_source_file = zargs_dep.path("src/simple.zig"), .target = target, .optimize = optimize }) },
         },
     });
     test_mod.addOptions("build_options", build_options);
@@ -102,7 +104,7 @@ fn buildIndicadores(b: *std.Build, opts: BuildOpts) IndicadoresBuild {
         .link_libc = true,
         .imports = &.{
             .{ .name = "z_lexbor", .module = z_lexbor_dep.module("z_lexbor") },
-            .{ .name = "zargs", .module = zargs_dep.module("zargs") },
+            .{ .name = "zargs", .module = b.createModule(.{ .root_source_file = zargs_dep.path("src/simple.zig"), .target = opts.target, .optimize = opts.optimize }) },
         },
     });
     exe_mod.addOptions("build_options", opts.build_options);
