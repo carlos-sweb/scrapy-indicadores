@@ -21,13 +21,20 @@
     "@lynx-js/config-rsbuild-plugin": "^0.2.4",
     "@lynx-js/qrcode-rsbuild-plugin": "^0.7.0",
     "@lynx-js/rspeedy": "^0.17.0",
-    "@lynx-js/template-webpack-plugin": "^0.16.0",
+    "@lynx-js/template-webpack-plugin": "^0.16.4",
     "@lynx-js/type-element-api": "0.0.9",
     "@lynx-js/types": "4.1.0",
     "@rsbuild/plugin-type-check": "^1.6.0",
     "@types/mithril": "^2.2.9",
     "mithril": "2.3.8",
     "typescript": "~5.9.0"
+  },
+  "overrides": {
+    "dompurify": "3.4.17",
+    "markdown-it": "15.0.3",
+    "serialize-javascript": "7.1.2",
+    "shell-quote": "1.11.0",
+    "source-map-js": "1.2.2"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
